@@ -1,0 +1,306 @@
+[
+    {
+        "provinsi": "Aceh",
+        "kota": [
+            "Banda Aceh",
+            "Lhokseumawe",
+            "Langsa"
+        ]
+    },
+    {
+        "provinsi": "Sumatera Utara",
+        "kota": [
+            "Medan",
+            "Binjai",
+            "Sibolga"
+        ]
+    },
+    {
+        "provinsi": "Sumatera Barat",
+        "kota": [
+            "Padang",
+            "Bukittinggi",
+            "Payakumbuh"
+        ]
+    },
+    {
+        "provinsi": "Riau",
+        "kota": [
+            "Pekanbaru",
+            "Dumai",
+            "Siak"
+        ]
+    },
+    {
+        "provinsi": "Kepulauan Riau",
+        "kota": [
+            "Batam",
+            "Tanjung Pinang",
+            "Bintan"
+        ]
+    },
+    {
+        "provinsi": "Jambi",
+        "kota": [
+            "Jambi",
+            "Sungai Penuh",
+            "Muaro Jambi"
+        ]
+    },
+    {
+        "provinsi": "Sumatera Selatan",
+        "kota": [
+            "Palembang",
+            "Lubuklinggau",
+            "Prabumulih"
+        ]
+    },
+    {
+        "provinsi": "Bangka Belitung",
+        "kota": [
+            "Pangkal Pinang",
+            "Tanjung Pandan",
+            "Sungailiat"
+        ]
+    },
+    {
+        "provinsi": "Bengkulu",
+        "kota": [
+            "Bengkulu",
+            "Mukomuko",
+            "Rejang Lebong"
+        ]
+    },
+    {
+        "provinsi": "Lampung",
+        "kota": [
+            "Bandar Lampung",
+            "Metro",
+            "Lampung Selatan"
+        ]
+    },
+    {
+        "provinsi": "DKI Jakarta",
+        "kota": [
+            "Jakarta Pusat",
+            "Jakarta Selatan",
+            "Jakarta Timur"
+        ]
+    },
+    {
+        "provinsi": "Banten",
+        "kota": [
+            "Serang",
+            "Tangerang",
+            "Cilegon"
+        ]
+    },
+    {
+        "provinsi": "Jawa Barat",
+        "kota": [
+            "Bandung",
+            "Bekasi",
+            "Depok"
+        ]
+    },
+    {
+        "provinsi": "Jawa Tengah",
+        "kota": [
+            "Semarang",
+            "Surakarta",
+            "Magelang"
+        ]
+    },
+    {
+        "provinsi": "DI Yogyakarta",
+        "kota": [
+            "Yogyakarta",
+            "Sleman",
+            "Bantul"
+        ]
+    },
+    {
+        "provinsi": "Jawa Timur",
+        "kota": [
+            "Surabaya",
+            "Malang",
+            "Kediri"
+        ]
+    },
+    {
+        "provinsi": "Bali",
+        "kota": [
+            "Denpasar",
+            "Gianyar",
+            "Badung"
+        ]
+    },
+    {
+        "provinsi": "Nusa Tenggara Barat",
+        "kota": [
+            "Mataram",
+            "Bima",
+            "Sumbawa"
+        ]
+    },
+    {
+        "provinsi": "Nusa Tenggara Timur",
+        "kota": [
+            "Kupang",
+            "Maumere",
+            "Ende"
+        ]
+    },
+    {
+        "provinsi": "Kalimantan Barat",
+        "kota": [
+            "Pontianak",
+            "Singkawang",
+            "Ketapang"
+        ]
+    },
+    {
+        "provinsi": "Kalimantan Tengah",
+        "kota": [
+            "Palangka Raya",
+            "Sampit",
+            "Pangkalan Bun"
+        ]
+    },
+    {
+        "provinsi": "Kalimantan Selatan",
+        "kota": [
+            "Banjarmasin",
+            "Banjarbaru",
+            "Martapura"
+        ]
+    },
+    {
+        "provinsi": "Kalimantan Timur",
+        "kota": [
+            "Samarinda",
+            "Balikpapan",
+            "Bontang"
+        ]
+    },
+    {
+        "provinsi": "Kalimantan Utara",
+        "kota": [
+            "Tanjung Selor",
+            "Tarakan",
+            "Nunukan"
+        ]
+    },
+    {
+        "provinsi": "Sulawesi Utara",
+        "kota": [
+            "Manado",
+            "Bitung",
+            "Tomohon"
+        ]
+    },
+    {
+        "provinsi": "Gorontalo",
+        "kota": [
+            "Gorontalo",
+            "Limboto",
+            "Marisa"
+        ]
+    },
+    {
+        "provinsi": "Sulawesi Tengah",
+        "kota": [
+            "Palu",
+            "Poso",
+            "Luwuk"
+        ]
+    },
+    {
+        "provinsi": "Sulawesi Barat",
+        "kota": [
+            "Mamuju",
+            "Majene",
+            "Polewali Mandar"
+        ]
+    },
+    {
+        "provinsi": "Sulawesi Selatan",
+        "kota": [
+            "Makassar",
+            "Parepare",
+            "Palopo"
+        ]
+    },
+    {
+        "provinsi": "Sulawesi Tenggara",
+        "kota": [
+            "Kendari",
+            "Baubau",
+            "Kolaka"
+        ]
+    },
+    {
+        "provinsi": "Maluku",
+        "kota": [
+            "Ambon",
+            "Tual",
+            "Masohi"
+        ]
+    },
+    {
+        "provinsi": "Maluku Utara",
+        "kota": [
+            "Ternate",
+            "Tidore Kepulauan",
+            "Sofifi"
+        ]
+    },
+    {
+        "provinsi": "Papua",
+        "kota": [
+            "Jayapura",
+            "Sentani",
+            "Keerom"
+        ]
+    },
+    {
+        "provinsi": "Papua Barat",
+        "kota": [
+            "Manokwari",
+            "Fakfak",
+            "Kaimana"
+        ]
+    },
+    {
+        "provinsi": "Papua Tengah",
+        "kota": [
+            "Nabire",
+            "Paniai",
+            "Deiyai"
+        ]
+    },
+    {
+        "provinsi": "Papua Pegunungan",
+        "kota": [
+            "Wamena",
+            "Jayawijaya",
+            "Lanny Jaya"
+        ]
+    },
+    {
+        "provinsi": "Papua Selatan",
+        "kota": [
+            "Merauke",
+            "Mappi",
+            "Asmat"
+        ]
+    },
+    {
+        "provinsi": "Papua Barat Daya",
+        "kota": [
+            "Sorong",
+            "Tambrauw",
+            "Maybrat"
+        ]
+    }
+]
