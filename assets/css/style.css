@@ -332,42 +332,41 @@ h2 {
 
 .auth .col-sm-6 {
   background-color: var(--white) !important;
-  position: relative;
-  z-index: 9999;
 }
 
 .text-pinkv2 {
   color: var(--pink);
 }
 
-.auth .form-control[type="text"],
-.auth .form-control[type="email"],
-.auth .form-control[type="password"] {
-  border-radius: 0;
-  background: transparent;
-  color: var(--dark);
-  border-style: none;
-  border-bottom: 1px solid var(--secondary);
-  box-shadow: none;
-  padding-left: 0;
-}
-
-.auth input,
-.auth label,
-.auth select {
-  font-size: 14px;
-}
-
-.auth select {
-  border-radius: 0;
-  border-style: none;
-  border-bottom: 1px solid var(--secondary);
+.form-control[type="text"],
+.form-control[type="email"],
+.form-control[type="password"],
+.form-control[type="number"] {
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--dark) !important;
+  border-style: none !important;
+  border-bottom: 1px solid var(--secondary) !important;
   box-shadow: none !important;
   padding-left: 0 !important;
+}
+
+input,
+label,
+select {
   font-size: 14px;
 }
 
-.auth textarea {
+select {
+  border-radius: 0 !important;
+  border-style: none !important;
+  border-bottom: 1px solid var(--secondary) !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  font-size: 14px !important;
+}
+
+textarea {
   border-radius: 10;
   border-style: none;
   border: 1px dotted var(--secondary);
@@ -392,4 +391,125 @@ h2 {
   box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px,
     rgba(17, 17, 26, 0.05) 0px 8px 32px;
   margin-top: 30px !important;
+}
+
+.total-card {
+  color: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  margin-top: 20px;
+  transition: 0.5s;
+}
+
+.total-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(255, 75, 161, 0.3);
+}
+
+.bg-gradient-katalog {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 195, 113, 0.35),
+    rgba(255, 94, 98, 0.35)
+  );
+}
+
+.bg-gradient-series {
+  background: linear-gradient(
+    135deg,
+    rgba(113, 106, 255, 0.35),
+    rgba(0, 210, 211, 0.35)
+  );
+}
+
+.bg-gradient-tersedia {
+  background: linear-gradient(
+    135deg,
+    rgba(72, 219, 251, 0.35),
+    rgba(255, 159, 243, 0.35)
+  );
+}
+
+.bg-gradient-disewa {
+  background: linear-gradient(
+    135deg,
+    rgba(29, 209, 161, 0.35),
+    rgba(255, 234, 167, 0.35)
+  );
+}
+
+.bg-gradient-disewanow {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 121, 63, 0.35),
+    rgba(255, 159, 67, 0.35)
+  );
+}
+
+.bg-gradient-maintenance {
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.35),
+    rgba(255, 107, 129, 0.35)
+  );
+}
+
+.bg-chartjs {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 195, 113, 0.25),
+    rgba(255, 94, 98, 0.25)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.btn-delete,
+.btn-delete:hover {
+  width: 100%;
+  background: #ff4757;
+  background: -webkit-linear-gradient(0deg, #ff6b81 0%, #ff4757 100%);
+  background: linear-gradient(0deg, #ff6b81 0%, #ff4757 100%);
+  transition: 0.8s;
+  box-shadow: 0 8px 32px 0 rgba(255, 71, 87, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.wishlist-btn {
+  width: 100%;
+  color: #ff4757;
+  background: var(--white);
+  transition: 0.8s;
+  box-shadow: 0 8px 32px 0 rgba(255, 71, 87, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  font-size: 13px;
+  transition: 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.wishlist-btn.active {
+  width: 100%;
+  background: #ff4757;
+  background: -webkit-linear-gradient(0deg, #ff6b81 0%, #ff4757 100%);
+  background: linear-gradient(0deg, #ff6b81 0%, #ff4757 100%);
+  transition: 0.8s;
+  box-shadow: 0 8px 32px 0 rgba(255, 71, 87, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 13px;
 }

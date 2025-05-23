@@ -1,5 +1,4 @@
 <?php
-
 include '../includes/config.php';
 include '../includes/header.php';
 
@@ -10,12 +9,23 @@ if (!isset($_GET['id'])) {
 
 $kostum_id = (int) $_GET['id'];
 
-// Ambil data kostum
+// Ambil data kostum + penyewa + user penyewa
 $query = $conn->query("
-    SELECT k.*, u.username AS penyewa_nama, u.id AS penyewa_id
-    FROM kostum k
-    JOIN users u ON k.penyewa_id = u.id
-    WHERE k.id = $kostum_id AND k.draft = 1
+    SELECT 
+        k.*,
+        p.rating AS rating_pelanggan,
+        p.jumlah_rating AS jumlah_rating_pelanggan,
+        u.fullname,
+        u.no_telepon,
+        u.email,
+        u.provinsi AS provinsi_penyewa,
+        u.kota AS kota_penyewa,
+        u.profil_path,
+        u.verifikasi_ktp
+    FROM katalog k
+    LEFT JOIN penyewa p ON k.penyewa_id = p.id
+    LEFT JOIN users u ON p.user_id = u.id
+    WHERE k.id = $kostum_id AND k.visible = 1
 ");
 
 if ($query->num_rows !== 1) {
@@ -24,28 +34,209 @@ if ($query->num_rows !== 1) {
 }
 
 $kostum = $query->fetch_assoc();
+
+// Format harga
+$harga_format = "Rp" . number_format($kostum['harga_sewa'], 0, ',', '.');
+
+// Data rating katalog (kostum)
+$rating_katalog = $kostum['rating'] ?? 0;
+$jumlah_rating_katalog = $kostum['jumlah_rating'] ?? 0;
+
+// Data rating pelanggan (penyewa)
+$rating_pelanggan = $kostum['rating_pelanggan'] ?? 0;
+$jumlah_rating_pelanggan = $kostum['jumlah_rating_pelanggan'] ?? 0;
+
+// Fungsi buat bintang rating
+function generateStars($rating)
+{
+    $fullStars = floor($rating);
+    $halfStar = ($rating - $fullStars) >= 0.5;
+    $starsHtml = '';
+
+    for ($i = 0; $i < $fullStars; $i++) {
+        $starsHtml .= '<i class="bi bi-star-fill text-warning"></i>';
+    }
+
+    if ($halfStar) {
+        $starsHtml .= '<i class="bi bi-star-half text-warning"></i>';
+    }
+
+    for ($i = $fullStars + $halfStar; $i < 5; $i++) {
+        $starsHtml .= '<i class="bi bi-star text-warning"></i>';
+    }
+
+    return $starsHtml;
+}
 ?>
 
-<div class="container">
-    <h2><?= htmlspecialchars($kostum['judul']) ?> - <?= htmlspecialchars($kostum['karakter']) ?></h2>
-    <img src="../uploads/<?= htmlspecialchars($kostum['foto']) ?>" width="300">
+<style>
+    .detail {
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
 
-    <p><strong>Series Anime:</strong> <?= htmlspecialchars($kostum['series']) ?></p>
-    <p><strong>Ukuran:</strong> <?= htmlspecialchars($kostum['ukuran']) ?></p>
-    <p><strong>Gender:</strong> <?= htmlspecialchars($kostum['gender']) ?></p>
-    <p><strong>Harga Sewa / Hari:</strong> Rp<?= number_format($kostum['harga']) ?></p>
-    <p><strong>Kategori:</strong> <?= htmlspecialchars($kostum['kategori']) ?></p>
-    <p><strong>Status:</strong> <?= htmlspecialchars($kostum['status']) ?></p>
-    <p><strong>Provinsi / Kota:</strong> <?= htmlspecialchars($kostum['provinsi']) ?> / <?= htmlspecialchars($kostum['kota']) ?></p>
-    <p><strong>Deskripsi:</strong> <?= nl2br(htmlspecialchars($kostum['deskripsi'])) ?></p>
-    <p><strong>Penyewa:</strong> <a href="../penyewa/profile.php?id=<?= $kostum['penyewa_id'] ?>"><?= htmlspecialchars($kostum['penyewa_nama']) ?></a></p>
+    .table,
+    .table tr,
+    .table td,
+    .table th {
+        background: transparent !important;
+    }
 
-    <?php if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'pelanggan') : ?>
-        <form method="POST" action="../pelanggan/tambah_wishlist.php">
-            <input type="hidden" name="kostum_id" value="<?= $kostum['id'] ?>">
-            <button type="submit">❤️ Tambah ke Wishlist</button>
-        </form>
-    <?php endif; ?>
+    .badge {
+        font-weight: 500;
+    }
+
+    .table .bg-success {
+        background-color: #2ed573 !important;
+    }
+
+    .table .bg-primary {
+        background-color: #70a1ff !important;
+    }
+
+    .table .bg-warning {
+        background-color: #ff7f50 !important;
+    }
+
+    th {
+        font-weight: 500 !important;
+    }
+</style>
+
+<div class="container mt-5 pt-5">
+    <div class="row px-2 py-3 mt-3 detail">
+        <div class="col-sm-3">
+            <img src="../uploads/<?= htmlspecialchars($kostum['foto_kostum']) ?>" width="300" class="rounded-3 shadow-sm" alt="Foto Kostum">
+        </div>
+        <div class="col-sm-9">
+            <h4 class="pt-3 pb-2 text-pinkv2"><?= htmlspecialchars($kostum['nama_kostum']) ?> - <?= htmlspecialchars($kostum['karakter']) ?></h4>
+
+            <div class="mb-3">
+                <?= generateStars($rating_katalog) ?>
+                <small class="text-muted ms-2">(<?= $jumlah_rating_katalog ?> ulasan)</small>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th width="200">Series Anime</th>
+                                <td><?= htmlspecialchars($kostum['series']) ?></td>
+                            </tr>
+                            <tr>
+                                <th>Ukuran</th>
+                                <td><?= htmlspecialchars($kostum['ukuran']) ?></td>
+                            </tr>
+                            <tr>
+                                <th>Gender</th>
+                                <td><?= htmlspecialchars($kostum['gender']) ?></td>
+                            </tr>
+                            <tr>
+                                <th>Harga Sewa / Hari</th>
+                                <td><?= $harga_format ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-sm-6">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th>Kategori</th>
+                                <td><?= htmlspecialchars($kostum['kategori']) ?></td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <?php
+                                    echo $kostum['status'] == "tersedia" ? '<span class="badge bg-success">Tersedia</span>' : "";
+                                    echo $kostum['status'] == "disewa" ? '<span class="badge bg-primary">Disewa</span>' : "";
+                                    echo $kostum['status'] == "maintenance" ? '<span class="badge bg-warning">Maintenance</span>' : "";
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Provinsi / Kota</th>
+                                <td><?= htmlspecialchars($kostum['provinsi']) ?> / <?= htmlspecialchars($kostum['kota']) ?></td>
+                            </tr>
+                            <tr>
+                                <th>Deskripsi</th>
+                                <td><?= nl2br(htmlspecialchars($kostum['deskripsi'])) ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row px-2 py-3 mt-4 detail">
+                <div class="col-sm-2">
+                    <img src="../uploads/<?= htmlspecialchars($kostum['profil_path']) ?>" width="100" style="border-radius: 100%; width:100px; height:100px;" alt="Foto Profil Penyewa">
+                </div>
+                <div class="col-sm-10">
+                    <h4 class="pt-3 pb-2 text-pinkv2"><?= htmlspecialchars($kostum['fullname']) ?></h4>
+
+                    <a href="mailto:<?= htmlspecialchars($kostum['email']) ?>" class="text-dark text-decoration-none me-3">
+                        <i class="bi bi-envelope-fill text-pinkv2 me-2"></i>
+                        <?= htmlspecialchars($kostum['email']) ?>
+                    </a>
+
+                    <a href="https://wa.me/<?= htmlspecialchars($kostum['no_telepon']) ?>" class="text-dark text-decoration-none me-3">
+                        <i class="bi bi-whatsapp text-pinkv2 me-2"></i>
+                        <?= htmlspecialchars($kostum['no_telepon']) ?>
+                    </a>
+
+                    <div class="mb-3 mt-3">
+                        <?= generateStars($rating_pelanggan) ?>
+                        <small class="text-muted ms-2">(<?= $jumlah_rating_pelanggan ?> ulasan)</small>
+                    </div>
+
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th width="200">Provinsi</th>
+                                <td><?= htmlspecialchars($kostum['provinsi_penyewa']) ?></td>
+                            </tr>
+                            <tr>
+                                <th>Kota</th>
+                                <td><?= htmlspecialchars($kostum['kota_penyewa']) ?></td>
+                            </tr>
+                            <tr>
+                                <th>Verified</th>
+                                <td>
+                                    <?php
+                                    echo $kostum['verifikasi_ktp'] ?
+                                        '<span class="badge bg-primary">DONE</span>' :
+                                        '<span class="badge bg-danger">WAITING</span>';
+                                    ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container fixed-bottom">
+    <div class="row mb-4">
+        <div class="col-sm-2 offset-sm-10">
+            <a href="../penyewa/order.php" class="btn btn-catalog mt-5 w-100">
+                <i class="bi bi-rocket-takeoff me-3"></i>
+                <span>Order</span>
+            </a>
+        </div>
+    </div>
 </div>
 
 <?php include '../includes/footer.php'; ?>

@@ -1,4 +1,4 @@
-<footer class="text-center mt-5">
+<footer class="text-center mt-5 pb-5">
     <p class="text-secondary">&copy; <?= date("Y") ?> Ruang Cosplay - Bandar Lampung</p>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>

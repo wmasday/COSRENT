@@ -44,18 +44,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['provinsi'] = $user['provinsi'];
             $_SESSION['kota'] = $user['kota'];
             $_SESSION['role']    = $user['role'];
+            $_SESSION['profil_path'] = $user['profil_path'] ?? null;
 
             $_SESSION['success'] = "Login berhasil.";
             if ($user['role'] === 'admin') {
                 header("Location: ../admin/dashboard.php");
                 exit;
             } elseif ($user['role'] === 'penyewa') {
-                header("Location: ../dashboard/penyewa.php");
+                header("Location: ../penyewa/dashboard.php");
                 exit;
             } else {
-                header("Location: ../dashboard/pelanggan.php");
+                header("Location: ../pelanggan/dashboard.php");
                 exit;
             }
+
             exit;
         }
     } else {

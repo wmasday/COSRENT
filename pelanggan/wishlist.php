@@ -3,20 +3,38 @@
 include '../includes/config.php';
 include '../includes/header.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pelanggan') {
-    header("Location: ../auth/login.php");
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['error'] = "Silahkan login terlebih dahulu.";
+    header("Location: ./login.php");
+    exit();
+}
+
+if ($_SESSION['role'] !== "pelanggan") {
+    $_SESSION['info'] = "Hanya pelanggan yang dapat membuat wishlist";
+    header("Location: ../../index.php");
+    exit();
+}
+
+$sql = "INSERT INTO wishlist (penyewa_id, pelanggan_id, katalog_id)
+        VALUES (?, ?, ?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("iii", $penyewa_id, $pelanggan_id, $katalog_id);
+
+if ($stmt->execute()) {
+    $verificationLink = $BASE_URL . "/auth/verify-email.php?token=" . $token;
+    $subject = "Verifikasi Email Anda - " . $APP_NAME;
+    $message = "Halo $fullname,\n\nSilakan klik link berikut untuk verifikasi email Anda:\n\n$verificationLink\n\nTerima kasih.";
+    sendSMTPMail($email, $fullname, $subject, $message);
+    $_SESSION['info'] = "Registrasi berhasil, silahkan lakukan verifikasi email yang kami kirimkan.";
+    header("Location: ./login.php");
+    exit;
+} else {
+    $_SESSION['error'] = "Kesalahan terjadi saat melakukan registrasi.";
+    header("Location: ./register.php");
     exit;
 }
 
-$pelanggan_id = $_SESSION['user_id'];
-
-$result = $conn->query("
-    SELECT k.*, w.id AS wishlist_id
-    FROM wishlist w
-    JOIN kostum k ON w.kostum_id = k.id
-    WHERE w.pelanggan_id = $pelanggan_id
-");
-
+$stmt->close();
 ?>
 
 <h2>Wishlist Kostum</h2>

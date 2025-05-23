@@ -1,59 +1,119 @@
 <?php
-
 include '../includes/config.php';
 include '../includes/header.php';
+include '../auth/auth.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pelanggan') {
-    header("Location: ../auth/login.php");
-    exit;
+$user_id = $_SESSION['user_id'];
+
+// Ambil pelanggan_id dari user_id
+$sql = "SELECT id FROM pelanggan WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
+    $pelanggan_id = $row['id'];
+} else {
+    die("Data pelanggan tidak ditemukan untuk user ini.");
 }
 
-$pelanggan_id = $_SESSION['user_id'];
+// Hitung jumlah wishlist
+$sqlWishlistCount = "SELECT COUNT(*) as total FROM wishlist WHERE pelanggan_id = ?";
+$stmt = $conn->prepare($sqlWishlistCount);
+$stmt->bind_param("i", $pelanggan_id);
+$stmt->execute();
+$totalWishlist = $stmt->get_result()->fetch_assoc()['total'];
+$stmt->close();
 
-// Ambil total sewa
-$qTotal = $conn->query("SELECT COUNT(*) AS total FROM sewa WHERE pelanggan_id = $pelanggan_id");
-$totalSewa = $qTotal->fetch_assoc()['total'];
+// Hitung jumlah pesanan
+$sqlOrderCount = "SELECT COUNT(*) as total FROM pesanan WHERE pelanggan_id = ?";
+$stmt = $conn->prepare($sqlOrderCount);
+$stmt->bind_param("i", $pelanggan_id);
+$stmt->execute();
+$totalOrders = $stmt->get_result()->fetch_assoc()['total'];
+$stmt->close();
 
-// Ambil daftar sewa dengan detail kostum
-$qList = $conn->query("
-    SELECT s.*, k.nama AS nama_kostum, k.foto_path, k.harga
-    FROM sewa s
-    JOIN kostum k ON s.kostum_id = k.id
-    WHERE s.pelanggan_id = $pelanggan_id
-    ORDER BY s.tanggal_sewa DESC
-");
+// Ambil list pesanan lengkap (join produk)
+$sqlOrders = "SELECT p.id as pesanan_id, p.status, p.tanggal_pesan, pr.nama_produk, pr.harga, pr.foto_produk 
+              FROM pesanan p 
+              JOIN produk pr ON p.produk_id = pr.id 
+              WHERE p.pelanggan_id = ? ORDER BY p.tanggal_pesan DESC";
+$stmt = $conn->prepare($sqlOrders);
+$stmt->bind_param("i", $pelanggan_id);
+$stmt->execute();
+$orders = $stmt->get_result();
+
+// Ambil produk wishlist (join produk)
+$sqlWishlist = "SELECT pr.id, pr.nama_produk, pr.harga, pr.foto_produk
+                FROM wishlist w
+                JOIN produk pr ON w.produk_id = pr.id
+                WHERE w.pelanggan_id = ?";
+$stmt = $conn->prepare($sqlWishlist);
+$stmt->bind_param("i", $pelanggan_id);
+$stmt->execute();
+$wishlists = $stmt->get_result();
+
 ?>
 
-<h2>Dashboard Pelanggan</h2>
+<div class="container" style="margin-top:100px;">
+    <h4 class="text-pinkv2 pt-4 mb-4">Dashboard Pelanggan</h4>
 
-<div class="dashboard-stat">
-    <p><strong>Total Penyewaan:</strong> <?= $totalSewa ?></p>
-</div>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-3">
+            <div class="total-card bg-gradient-katalog p-3 text-center">
+                <span class="d-block text-secondary">Jumlah Wishlist</span>
+                <div class="count display-6 fw-bold"><?= $totalWishlist ?></div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="total-card bg-gradient-series p-3 text-center">
+                <span class="d-block text-secondary">Jumlah Pesanan</span>
+                <div class="count display-6 fw-bold"><?= $totalOrders ?></div>
+            </div>
+        </div>
+    </div>
 
-<h3>Riwayat Penyewaan</h3>
-<table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-        <tr>
-            <th>Foto Kostum</th>
-            <th>Nama Kostum</th>
-            <th>Tanggal Sewa</th>
-            <th>Tanggal Kembali</th>
-            <th>Status</th>
-            <th>Harga</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php while ($row = $qList->fetch_assoc()) : ?>
+    <h5>Daftar Pesanan</h5>
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td><img src="../<?= $row['foto_path'] ?>" width="80" alt="<?= $row['nama_kostum'] ?>"></td>
-                <td><?= htmlspecialchars($row['nama_kostum']) ?></td>
-                <td><?= $row['tanggal_sewa'] ?></td>
-                <td><?= $row['tanggal_kembali'] ?></td>
-                <td><?= ucfirst($row['status']) ?></td>
-                <td>Rp<?= number_format($row['harga'], 0, ',', '.') ?></td>
+                <th>ID Pesanan</th>
+                <th>Produk</th>
+                <th>Harga</th>
+                <th>Status</th>
+                <th>Tanggal Pesan</th>
             </tr>
+        </thead>
+        <tbody>
+            <?php while ($order = $orders->fetch_assoc()) : ?>
+                <tr>
+                    <td><?= htmlspecialchars($order['pesanan_id']) ?></td>
+                    <td><?= htmlspecialchars($order['nama_produk']) ?></td>
+                    <td>IDR <?= number_format($order['harga'], 0, ',', '.') ?></td>
+                    <td><?= htmlspecialchars(ucfirst($order['status'])) ?></td>
+                    <td><?= htmlspecialchars($order['tanggal_pesan']) ?></td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+
+    <h5 class="mt-5">Wishlist Produk</h5>
+    <div class="row">
+        <?php while ($wishlist = $wishlists->fetch_assoc()) : ?>
+            <div class="col-sm-3 mb-4">
+                <div class="card">
+                    <img src="<?= htmlspecialchars($wishlist['foto_produk']) ?>" class="card-img-top" alt="<?= htmlspecialchars($wishlist['nama_produk']) ?>">
+                    <div class="card-body">
+                        <h6 class="card-title"><?= htmlspecialchars($wishlist['nama_produk']) ?></h6>
+                        <p class="card-text">IDR <?= number_format($wishlist['harga'], 0, ',', '.') ?></p>
+                        <a href="produk-detail.php?id=<?= $wishlist['id'] ?>" class="btn btn-primary btn-sm">Lihat Produk</a>
+                    </div>
+                </div>
+            </div>
         <?php endwhile; ?>
-    </tbody>
-</table>
+    </div>
+
+</div>
 
 <?php include '../includes/footer.php'; ?>

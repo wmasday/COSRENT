@@ -6,22 +6,53 @@ include '../includes/mail.php';
 $json = file_get_contents("../includes/province.json");
 $data = json_decode($json, true);
 
-if (isset($_POST['register'])) {
-    $fullname = $_POST['fullname'];
-    $email    = $_POST['email'];
-    $password = $_POST['password'];
-    $c_password = $_POST['c_password'];
-    $role     = $_POST['role'];
-    $provinsi = $_POST['provinsi'];
-    $kota     = $_POST['kota'];
-    $bio      = $_POST['bio'];
+function handleFileUpload($file, $uploadDir, $prefix = '')
+{
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+    $fileName = $file['name'];
+    $tmpName = $file['tmp_name'];
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-    if ($password != $c_password) {
+    if (!in_array($fileExt, $allowedExtensions)) {
+        return [false, 'Ekstensi file tidak diperbolehkan.'];
+    }
+
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+
+    $secureName = uniqid($prefix, true) . '.' . $fileExt;
+    $filePath = $uploadDir . $secureName;
+
+    if (!move_uploaded_file($tmpName, $filePath)) {
+        return [false, 'Gagal mengunggah file.'];
+    }
+
+    return [true, $filePath];
+}
+
+if (isset($_POST['register'])) {
+    $fullname    = $_POST['fullname'];
+    $email       = $_POST['email'];
+    $password    = $_POST['password'];
+    $c_password  = $_POST['c_password'];
+    $role        = $_POST['role'];
+    $provinsi    = $_POST['provinsi'];
+    $kota        = $_POST['kota'];
+    $bio         = $_POST['bio'];
+    $alamat      = $_POST['alamat'];
+    $no_telepon  = $_POST['no_telepon'];
+
+    if ($password !== $c_password) {
         $_SESSION['error'] = 'Password dan Konfirmasi Password tidak sama!';
         header("Location: ./register.php");
         exit();
-    } else {
-        $password = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    if (!ctype_digit($no_telepon)) {
+        $_SESSION['error'] = "Nomor telepon hanya boleh berisi angka.";
+        header("Location: ./register.php");
+        exit();
     }
 
     if ($role === 'penyewa' && !isset($_POST['term'])) {
@@ -30,43 +61,72 @@ if (isset($_POST['register'])) {
         exit();
     }
 
-
-    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-
-    $ktp_file = $_FILES['ktp']['name'];
-    $tmp_name = $_FILES['ktp']['tmp_name'];
-    $uploadDir = "../uploads/ktp/";
-    $secureIt = uniqid('ktp_') . ".jpg";
-
-    $fileExt = strtolower(pathinfo($ktp_file, PATHINFO_EXTENSION));
-    if (!in_array($fileExt, $allowedExtensions)) {
-        $_SESSION['error'] = 'File upload not allowed.';
-        header("Location: ./register.php");
-        exit();
-    }
-
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
-    }
-
-    if (!move_uploaded_file($tmp_name, $secureIt)) {
-        $_SESSION['error'] = 'Upload KTP gagal.';
-        header("Location: ./register.php");
-        exit();
-    }
-    $target = $uploadDir . $secureIt;
+    $password = password_hash($password, PASSWORD_DEFAULT);
     $token = bin2hex(random_bytes(32));
 
-    $sql = "INSERT INTO users (fullname, email, password, role, ktp_path, provinsi, kota, bio, verifikasi_ktp, email_verified, email_verification_token)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)";
+    // Upload KTP
+    list($ktpSuccess, $ktpResult) = handleFileUpload($_FILES['ktp'], "../uploads/ktp/", 'ktp_');
+    if (!$ktpSuccess) {
+        $_SESSION['error'] = $ktpResult;
+        header("Location: ./register.php");
+        exit();
+    }
+    $ktp_path = $ktpResult;
+
+    // Upload Profile (optional)
+    $profil_path = null;
+    if (!empty($_FILES['profile']['name'])) {
+        list($profilSuccess, $profilResult) = handleFileUpload($_FILES['profile'], "../uploads/profil/", 'profil_');
+        if (!$profilSuccess) {
+            $_SESSION['error'] = $profilResult;
+            header("Location: ./register.php");
+            exit();
+        }
+        $profil_path = $profilResult;
+    }
+
+    // Insert ke users
+    $sql = "INSERT INTO users (fullname, alamat, no_telepon, email, password, role, ktp_path, profil_path, provinsi, kota, bio, verifikasi_ktp, email_verified, email_verification_token)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssss", $fullname, $email, $password, $role, $target, $provinsi, $kota, $bio, $token);
+    $stmt->bind_param(
+        "ssssssssssss",
+        $fullname,
+        $alamat,
+        $no_telepon,
+        $email,
+        $password,
+        $role,
+        $ktp_path,
+        $profil_path,
+        $provinsi,
+        $kota,
+        $bio,
+        $token
+    );
 
     if ($stmt->execute()) {
+        $user_id = $conn->insert_id;
+        $stmt->close();
+        if ($role === "penyewa") {
+            $sql2 = "INSERT INTO penyewa (user_id)
+                 VALUES (?)";
+        } else {
+            $sql2 = "INSERT INTO pelanggan (user_id)
+                 VALUES (?)";
+        }
+
+        $stmt2 = $conn->prepare($sql2);
+        $stmt2->bind_param("i", $user_id);
+        $stmt2->execute();
+        $stmt2->close();
+
+        // Kirim verifikasi email
         $verificationLink = $BASE_URL . "/auth/verify-email.php?token=" . $token;
-        $subject = "Verifikasi Email Anda - " . $APP_NAME;
-        $message = "Halo $fullname,\n\nSilakan klik link berikut untuk verifikasi email Anda:\n\n$verificationLink\n\nTerima kasih.";
+        $subject = "Verifikasi Email Anda - $APP_NAME";
+        $message = "Halo $fullname,\n\nSilakan klik link berikut untuk verifikasi email Anda:\n$verificationLink\n\nTerima kasih.";
         sendSMTPMail($email, $fullname, $subject, $message);
+
         $_SESSION['info'] = "Registrasi berhasil, silahkan lakukan verifikasi email yang kami kirimkan.";
         header("Location: ./login.php");
         exit;
@@ -75,10 +135,9 @@ if (isset($_POST['register'])) {
         header("Location: ./register.php");
         exit;
     }
-
-    $stmt->close();
 }
 ?>
+
 
 <div class="container" style="margin-top: 120px;">
     <form class="row auth bg-white shadow-sm rounded-3 p-5" method="POST" action="" enctype="multipart/form-data">
@@ -101,9 +160,7 @@ if (isset($_POST['register'])) {
                 <label>Confirm Password</label>
                 <input type="password" class="form-control" name="c_password" />
             </div>
-        </div>
 
-        <div class="col-sm-4">
             <div class="mt-3">
                 <label>Province</label>
                 <select class="form-select" id="provinsiSelect" name="provinsi">
@@ -120,10 +177,17 @@ if (isset($_POST['register'])) {
                     <option selected disabled>Pilih Kota</option>
                 </select>
             </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="mt-3">
+                <label>Telp</label>
+                <input type="number" class="form-control" name="no_telepon" placeholder="ex : 62812" />
+            </div>
 
             <div class="mt-3">
-                <label>Upload KTP <span class="text-danger" style="font-size: 10px;">* Verifikasi Identitas</span></label>
-                <input type="file" class="form-control" name="ktp" />
+                <label>Alamat</label>
+                <input type="text" class="form-control" name="alamat" />
             </div>
 
             <div class="mt-3">
@@ -131,8 +195,18 @@ if (isset($_POST['register'])) {
                 <select class="form-select" id="roleSelect" name="role">
                     <option selected disabled>Pilih Peran</option>
                     <option value="penyewa">Penyewa</option>
-                    <option value="penyewa">Pelanggan</option>
+                    <option value="pelanggan">Pelanggan</option>
                 </select>
+            </div>
+
+            <div class="mt-3">
+                <label>Upload KTP <span class="text-danger" style="font-size: 10px;">* Verifikasi Identitas</span></label>
+                <input type="file" class="form-control" name="ktp" />
+            </div>
+
+            <div class="mt-3">
+                <label>Profile</label>
+                <input type="file" class="form-control" name="profile" />
             </div>
         </div>
 
@@ -140,7 +214,7 @@ if (isset($_POST['register'])) {
             <div class="mt-3">
                 <label>Bio Profile</label>
                 <div class="form-floating">
-                    <textarea class="form-control bg-light" placeholder="Bio" id="floatingTextarea" style="height: 250px;" name="bio"></textarea>
+                    <textarea class="form-control bg-light" placeholder="Bio" id="floatingTextarea" style="height: 330px;" name="bio"></textarea>
                 </div>
             </div>
         </div>
