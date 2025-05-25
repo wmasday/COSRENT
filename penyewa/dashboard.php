@@ -32,7 +32,10 @@ SELECT
     k.gender, 
     u.fullname, 
     u.email,
-    u.no_telepon
+    u.no_telepon,
+    u.verifikasi_ktp,
+    u.kota AS kota_penyewa,
+    u.provinsi AS provinsi_penyewa
 FROM pesanan o
 JOIN katalog k ON o.katalog_id = k.id
 JOIN pelanggan p ON o.pelanggan_id = p.id
@@ -52,6 +55,31 @@ $totalSeries = $conn->query("SELECT COUNT(DISTINCT series) as total FROM katalog
 $tersewa = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa_id = $penyewa_id AND status = 'disewa'")->fetch_assoc()['total'];
 $tersedia = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa_id = $penyewa_id AND status = 'tersedia'")->fetch_assoc()['total'];
 $maintenance = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa_id = $penyewa_id AND status = 'maintenance'")->fetch_assoc()['total'];
+
+if (isset($_POST['update-status'])) {
+    $pesanan_id = $_POST['pesanan_id'];
+    $status_peminjaman = $_POST['status_peminjaman'];
+
+    $allowed_statuses = ['belum_diambil', 'dipinjam', 'terlambat', 'dikembalikan'];
+    if (!in_array($status_peminjaman, $allowed_statuses)) {
+        $_SESSION['error'] = "Status tidak valid";
+        header("Location: dashboard.php");
+        exit;
+    }
+
+    $stmt = $conn->prepare("UPDATE pesanan SET status_peminjaman = ? WHERE id = ?");
+    $stmt->bind_param("si", $status_peminjaman, $pesanan_id);
+
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Update status peminjaman berhasil.";
+        header("Location: dashboard.php");
+        exit;
+    } else {
+        $_SESSION['error'] = "Gagal memperbarui status.";
+        header("Location: dashboard.php");
+        exit;
+    }
+}
 ?>
 
 <div class="container" style="margin-top:100px;">
@@ -98,49 +126,6 @@ $maintenance = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa
         </div>
     </div>
 
-    <style>
-        .glass-accordion .accordion-button {
-            color: var(--pink);
-            backdrop-filter: blur(4px);
-            background: rgba(255, 255, 255, 0.08);
-            border: none;
-            border-radius: 15px 15px 0 0;
-        }
-
-        .glass-accordion .accordion-body {
-            color: #eee;
-        }
-
-        .badge {
-            font-weight: 500;
-            text-transform: uppercase;
-        }
-
-        /* $order['status_pembayaran'] === 'pending' ? 'pending' : ''; */
-        /* $order['status_pembayaran'] === 'dibayar' ? 'dibayar' : ''; */
-        /* $order['status_pembayaran'] === 'dibatalkan' ? 'dibatalkan' : ''; */
-        /* $order['status_pembayaran'] === 'selesai' ? 'selesai' : ''; */
-
-        .bg-pending {
-            background-color: #eccc68 !important;
-            color: var(--white) !important;
-        }
-
-        .bg-dibayar {
-            background-color: #7bed9f !important;
-            color: var(--white) !important;
-        }
-
-        .bg-dibatalkan {
-            background-color: #ff6b81 !important;
-            color: var(--white) !important;
-        }
-
-        .bg-selesai {
-            background-color: #70a1ff !important;
-            color: var(--white) !important;
-        }
-    </style>
     <div class="row mt-5 mb-3">
         <div class="col-sm-12 mb-4">
             <h4 class="text-pinkv2">Order dari Pelanggan</h4>
@@ -158,13 +143,27 @@ $maintenance = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa
                         <div id="collapse<?= $no ?>" class="bg-white accordion-collapse collapse" aria-labelledby="heading<?= $no ?>" data-bs-parent="#accordionOrders">
                             <div class="accordion-body text-dark">
                                 <div class="row mb-2">
-                                    <div class="col-md-4">
+                                    <div class="col-md-4 mb-3">
+                                        <strong>Nama</strong> <br><?= htmlspecialchars($order['fullname']) ?>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
                                         <strong>Email</strong> <br><?= htmlspecialchars($order['email']) ?>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-4 mb-3">
                                         <strong>Telp</strong> <br><?= htmlspecialchars($order['no_telepon']) ?>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-4 mb-3">
+                                        <strong>Verified</strong> <br><?php
+                                                                        echo $order['verifikasi_ktp'] ?
+                                                                            '<span class="badge bg-primaryv2">DONE</span>' :
+                                                                            '<span class="badge bg-dangerv2">WAITING</span>';
+                                                                        ?>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <strong>Kota / Provinsi</strong> <br>
+                                        <?= htmlspecialchars($order['kota_penyewa']) ?> / <?= htmlspecialchars($order['provinsi_penyewa']) ?>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
                                         <strong>Periode Sewa</strong><br><?= $order['tanggal_sewa'] ?> s.d. <?= $order['tanggal_kembali'] ?>
                                     </div>
                                 </div>
@@ -189,17 +188,16 @@ $maintenance = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa
                                     </div>
                                     <div class="col-md-4">
                                         <strong>Status Peminjaman</strong><br>
-                                        <span class="badge bg-<?php
-                                                                echo $order['status_peminjaman'] === 'belum_diambil' ? 'pending' : '';
-                                                                echo $order['status_peminjaman'] === 'dipinjam' ? 'dibayar' : '';
-                                                                echo $order['status_peminjaman'] === 'terlambat' ? 'dibatalkan' : '';
-                                                                echo $order['status_peminjaman'] === 'dikembalikan' ? 'selesai' : ''; ?>">
-                                            <?php
-                                            echo $order['status_peminjaman'] === 'belum_diambil' ? 'Waiting' : '';
-                                            echo $order['status_peminjaman'] === 'dipinjam' ? 'Di Pinjam' : '';
-                                            echo $order['status_peminjaman'] === 'terlambat' ? 'Terlambaat' : '';
-                                            echo $order['status_peminjaman'] === 'dikembalikan' ? 'Di Kembalikan' : ''; ?>
-                                        </span>
+                                        <form action="" method="POST" class="d-flex align-items-center gap-2">
+                                            <input type="hidden" name="pesanan_id" value="<?= $order['id'] ?>">
+                                            <select name="status_peminjaman" class="form-select form-select-sm" style="width:auto">
+                                                <option value="belum_diambil" <?= $order['status_peminjaman'] == 'belum_diambil' ? 'selected' : '' ?>>Belum Diambil</option>
+                                                <option value="dipinjam" <?= $order['status_peminjaman'] == 'dipinjam' ? 'selected' : '' ?>>Dipinjam</option>
+                                                <option value="terlambat" <?= $order['status_peminjaman'] == 'terlambat' ? 'selected' : '' ?>>Terlambat</option>
+                                                <option value="dikembalikan" <?= $order['status_peminjaman'] == 'dikembalikan' ? 'selected' : '' ?>>Dikembalikan</option>
+                                            </select>
+                                            <button type="submit" name="update-status" class="btn btn-sm bg-grad-3 text-white px-3 ms-3">Update</button>
+                                        </form>
                                     </div>
                                 </div>
 

@@ -105,29 +105,63 @@ while ($w = $res2->fetch_assoc()) {
         </div>
     </div>
 
-    <h5>Daftar Pesanan</h5>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID Pesanan</th>
-                <th>Kostum</th>
-                <th>Harga</th>
-                <th>Status Pembayaran</th>
-                <th>Tanggal Sewa</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($order = $orders->fetch_assoc()) : ?>
-                <tr>
-                    <td><?= htmlspecialchars($order['pesanan_id']) ?></td>
-                    <td><?= htmlspecialchars($order['nama_kostum']) ?></td>
-                    <td>IDR <?= number_format($order['harga_sewa'], 0, ',', '.') ?></td>
-                    <td><?= htmlspecialchars(ucfirst($order['status_pembayaran'])) ?></td>
-                    <td><?= htmlspecialchars($order['tanggal_sewa']) ?></td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
+    <h5 class="mt-5">Daftar Pesanan</h5>
+    <div class="accordion glass-accordion" id="accordionPesanan">
+        <?php $no = 1;
+        $orders->data_seek(0);
+        while ($order = $orders->fetch_assoc()) :
+            $badgeClass = 'pending';
+            if ($order['status_pembayaran'] === 'dibayar') $badgeClass = 'dibayar';
+            elseif ($order['status_pembayaran'] === 'dibatalkan') $badgeClass = 'dibatalkan';
+            elseif ($order['status_pembayaran'] === 'selesai') $badgeClass = 'selesai';
+        ?>
+            <div class="bg-gradient-tersedia accordion-item border-0 mb-3">
+                <h3 class="accordion-header" id="heading<?= $no ?>">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $no ?>" aria-expanded="false" aria-controls="collapse<?= $no ?>">
+                        <?= htmlspecialchars($order['nama_kostum']) ?> | <?= htmlspecialchars($order['tanggal_sewa']) ?>
+                    </button>
+                </h3>
+                <div id="collapse<?= $no ?>" class="accordion-collapse collapse" aria-labelledby="heading<?= $no ?>" data-bs-parent="#accordionPesanan">
+                    <div class="accordion-body text-dark">
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <strong>Tanggal Sewa</strong><br><?= $order['tanggal_sewa'] ?> s.d. <?= $order['tanggal_kembali'] ?>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Total Harga</strong><br>IDR <?= number_format($order['total_harga'], 0, ',', '.') ?>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Status Pembayaran</strong><br>
+                                <span class="badge bg-<?= $badgeClass ?>">
+                                    <?= htmlspecialchars($order['status_pembayaran']) ?>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4 text-capitalize">
+                                <strong>Status Peminjaman</strong><br><?= htmlspecialchars($order['status_peminjaman']) ?>
+                            </div>
+                            <div class="col-md-8">
+                                <strong>Catatan</strong><br><small><?= nl2br(htmlspecialchars($order['catatan'])) ?></small>
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Bukti Pembayaran</strong><br>
+                            <?php if ($order['bukti_pembayaran']) : ?>
+                                <a href="../uploads/<?= htmlspecialchars($order['bukti_pembayaran']) ?>" target="_blank">
+                                    <img src="../uploads/<?= htmlspecialchars($order['bukti_pembayaran']) ?>" class="img-fluid rounded mt-2" style="max-height:100px;">
+                                </a>
+                            <?php else : ?>
+                                <span class="text-muted">Belum Diupload</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php $no++;
+        endwhile; ?>
+    </div>
+
 
     <h5 class="mt-5">Wishlist Kostum</h5>
     <div class="row">

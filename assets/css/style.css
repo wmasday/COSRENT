@@ -551,3 +551,52 @@ textarea {
 .bg-grad-6 {
   background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
 }
+
+.glass-accordion .accordion-button {
+  color: var(--pink);
+  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 15px 15px 0 0;
+}
+
+.glass-accordion .accordion-body {
+  color: #eee;
+}
+
+.bg-pending {
+  background-color: #eccc68 !important;
+  color: #fff !important;
+}
+
+.bg-dibayar {
+  background-color: #7bed9f !important;
+  color: #fff !important;
+}
+
+.bg-dibatalkan {
+  background-color: #ff6b81 !important;
+  color: #fff !important;
+}
+
+.bg-selesai {
+  background-color: #70a1ff !important;
+  color: #fff !important;
+}
+
+.badge {
+  font-weight: 500 !important;
+  text-transform: uppercase;
+}
+
+.bg-successv2 {
+  background-color: #2ed573 !important;
+}
+
+.bg-primaryv2 {
+  background-color: #70a1ff !important;
+}
+
+.bg-warningv2 {
+  background-color: #ff7f50 !important;
+}
