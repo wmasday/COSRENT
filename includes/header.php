@@ -27,6 +27,10 @@
                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] == "penyewa") { ?>
                             <a href="/penyewa/dashboard.php" class="btn btn-custom-primary font-silkscreen">Dashboard</a>
                         <?php } ?>
+
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == "pelanggan") { ?>
+                            <a href="/pelanggan/dashboard.php" class="btn btn-custom-primary font-silkscreen">Dashboard</a>
+                        <?php } ?>
                         <?php if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) : ?>
                             <div class="dropdown">
                                 <div class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

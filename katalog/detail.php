@@ -179,8 +179,8 @@ function generateStars($rating)
     <div class="row">
         <div class="col-sm-6">
             <div class="row px-2 py-3 mt-4 detail">
-                <div class="col-sm-2">
-                    <img src="../uploads/<?= htmlspecialchars($kostum['profil_path']) ?>" width="100" style="border-radius: 100%; width:100px; height:100px;" alt="Foto Profil Penyewa">
+                <div class="col-sm-2 pt-3 ps-4">
+                    <img src="../uploads/<?= htmlspecialchars($kostum['profil_path']) ?>" width="100" style="border-radius: 100%; width:80px; height:80px;" alt="Foto Profil Penyewa">
                 </div>
                 <div class="col-sm-10">
                     <h4 class="pt-3 pb-2 text-pinkv2"><?= htmlspecialchars($kostum['fullname']) ?></h4>
@@ -231,7 +231,7 @@ function generateStars($rating)
 <div class="container fixed-bottom">
     <div class="row mb-4">
         <div class="col-sm-2 offset-sm-10">
-            <a href="../penyewa/order.php" class="btn btn-catalog mt-5 w-100">
+            <a href="../pelanggan/order.php?katalog_id=<?= $kostum_id; ?>" class="btn btn-catalog mt-5 w-100">
                 <i class="bi bi-rocket-takeoff me-3"></i>
                 <span>Order</span>
             </a>

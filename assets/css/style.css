@@ -32,6 +32,9 @@ header {
   background: #ff89bd;
   background: -webkit-linear-gradient(0deg, #ff89bd 0%, #ff4ba1 100%);
   background: linear-gradient(0deg, #ff89bd 0%, #ff4ba1 100%);
+  /* width: 98% !important;
+  margin-right: 1% !important;
+  margin-left: 1% !important; */
 }
 
 .navbar-brand {
@@ -341,7 +344,8 @@ h2 {
 .form-control[type="text"],
 .form-control[type="email"],
 .form-control[type="password"],
-.form-control[type="number"] {
+.form-control[type="number"],
+.form-control[type="date"] {
   border-radius: 0 !important;
   background: transparent !important;
   color: var(--dark) !important;

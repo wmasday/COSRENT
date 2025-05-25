@@ -22,6 +22,31 @@ $stmt->bind_param("i", $penyewa_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
+$orderQuery = "
+SELECT 
+    o.*, 
+    k.karakter, 
+    k.series, 
+    k.harga_sewa, 
+    k.ukuran, 
+    k.gender, 
+    u.fullname, 
+    u.email,
+    u.no_telepon
+FROM pesanan o
+JOIN katalog k ON o.katalog_id = k.id
+JOIN pelanggan p ON o.pelanggan_id = p.id
+JOIN users u ON p.user_id = u.id
+WHERE k.penyewa_id = ?
+ORDER BY o.created_at DESC
+
+";
+$stmtOrder = $conn->prepare($orderQuery);
+$stmtOrder->bind_param("i", $penyewa_id);
+$stmtOrder->execute();
+$ordersResult = $stmtOrder->get_result();
+
+
 $totalKostum = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa_id = $penyewa_id")->fetch_assoc()['total'];
 $totalSeries = $conn->query("SELECT COUNT(DISTINCT series) as total FROM katalog WHERE penyewa_id = $penyewa_id")->fetch_assoc()['total'];
 $tersewa = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa_id = $penyewa_id AND status = 'disewa'")->fetch_assoc()['total'];
@@ -71,6 +96,143 @@ $maintenance = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa
                 </a>
             </div>
         </div>
+    </div>
+
+    <style>
+        .glass-accordion .accordion-button {
+            color: var(--pink);
+            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .glass-accordion .accordion-body {
+            color: #eee;
+        }
+
+        .badge {
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        /* $order['status_pembayaran'] === 'pending' ? 'pending' : ''; */
+        /* $order['status_pembayaran'] === 'dibayar' ? 'dibayar' : ''; */
+        /* $order['status_pembayaran'] === 'dibatalkan' ? 'dibatalkan' : ''; */
+        /* $order['status_pembayaran'] === 'selesai' ? 'selesai' : ''; */
+
+        .bg-pending {
+            background-color: #eccc68 !important;
+            color: var(--white) !important;
+        }
+
+        .bg-dibayar {
+            background-color: #7bed9f !important;
+            color: var(--white) !important;
+        }
+
+        .bg-dibatalkan {
+            background-color: #ff6b81 !important;
+            color: var(--white) !important;
+        }
+
+        .bg-selesai {
+            background-color: #70a1ff !important;
+            color: var(--white) !important;
+        }
+    </style>
+    <div class="row mt-5 mb-3">
+        <div class="col-sm-12 mb-4">
+            <h4 class="text-pinkv2">Order dari Pelanggan</h4>
+        </div>
+        <div class="col-sm-12">
+            <div class="accordion glass-accordion" id="accordionOrders">
+                <?php $no = 1;
+                while ($order = $ordersResult->fetch_assoc()) : ?>
+                    <div class="bg-gradient-tersedia accordion-item border-0 mb-3">
+                        <h3 class="accordion-header" id="heading<?= $no ?>">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $no ?>" aria-expanded="false" aria-controls="collapse<?= $no ?>">
+                                <?= htmlspecialchars($order['fullname']) ?> | <?= htmlspecialchars($order['karakter']) ?> (<?= htmlspecialchars($order['series']) ?>)
+                            </button>
+                        </h3>
+                        <div id="collapse<?= $no ?>" class="bg-white accordion-collapse collapse" aria-labelledby="heading<?= $no ?>" data-bs-parent="#accordionOrders">
+                            <div class="accordion-body text-dark">
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <strong>Email</strong> <br><?= htmlspecialchars($order['email']) ?>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Telp</strong> <br><?= htmlspecialchars($order['no_telepon']) ?>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Periode Sewa</strong><br><?= $order['tanggal_sewa'] ?> s.d. <?= $order['tanggal_kembali'] ?>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <strong>Total Harga</strong><br>IDR <?= number_format($order['total_harga'], 0, ',', '.') ?>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Status Pembayaran</strong><br>
+                                        <span class="badge bg-<?=
+                                                                $order['status_pembayaran'] === 'pending' ? 'pending' : '';
+                                                                $order['status_pembayaran'] === 'dibayar' ? 'dibayar' : '';
+                                                                $order['status_pembayaran'] === 'dibatalkan' ? 'dibatalkan' : '';
+                                                                $order['status_pembayaran'] === 'selesai' ? 'selesai' : ''; ?>">
+                                            <?= $order['status_pembayaran'] === 'pending' ? 'pending' : '';
+                                            $order['status_pembayaran'] === 'dibayar' ? 'dibayar' : '';
+                                            $order['status_pembayaran'] === 'dibatalkan' ? 'dibatalkan' : '';
+                                            $order['status_pembayaran'] === 'selesai' ? 'selesai' : ''; ?>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Status Peminjaman</strong><br>
+                                        <span class="badge bg-<?=
+                                                                $order['status_peminjaman'] === 'belum_diambil' ? 'pending' : '';
+                                                                $order['status_peminjaman'] === 'dipinjam' ? 'dibayar' : '';
+                                                                $order['status_peminjaman'] === 'terlambat' ? 'dibatalkan' : '';
+                                                                $order['status_peminjaman'] === 'dikembalikan' ? 'selesai' : ''; ?>">
+                                            <?=
+                                            $order['status_peminjaman'] === 'belum_diambil' ? 'Waiting' : '';
+                                            $order['status_peminjaman'] === 'dipinjam' ? 'Di Pinjam' : '';
+                                            $order['status_peminjaman'] === 'terlambat' ? 'Terlambaat' : '';
+                                            $order['status_peminjaman'] === 'dikembalikan' ? 'Di Kembalikan' : ''; ?>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <strong>Ukuran</strong><br><?= $order['ukuran'] ?>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Gender</strong><br><?= $order['gender'] ?>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Catatan</strong><br><small><?= nl2br(htmlspecialchars($order['catatan'])) ?></small>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <strong>Bukti Pembayaran</strong><br>
+                                    <?php if ($order['bukti_pembayaran']) : ?>
+                                        <a href="../uploads/<?= htmlspecialchars($order['bukti_pembayaran']) ?>" target="_blank">
+                                            <img src="../uploads/<?= htmlspecialchars($order['bukti_pembayaran']) ?>" class="img-fluid rounded mt-2" style="max-height:100px;">
+                                        </a>
+                                    <?php else : ?>
+                                        <span class="text-muted">Belum Diupload</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php $no++;
+                endwhile; ?>
+            </div>
+
+        </div>
+
     </div>
 
 
