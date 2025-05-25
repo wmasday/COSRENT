@@ -600,3 +600,15 @@ textarea {
 .bg-warningv2 {
   background-color: #ff7f50 !important;
 }
+
+.rating i {
+  color: #ccc;
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.rating i.hovered,
+.rating i.selected {
+  color: #ffc107; /* gold */
+}

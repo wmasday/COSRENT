@@ -46,29 +46,7 @@ $jumlah_rating_katalog = $kostum['jumlah_rating'] ?? 0;
 $rating_pelanggan = $kostum['rating_pelanggan'] ?? 0;
 $jumlah_rating_pelanggan = $kostum['jumlah_rating_pelanggan'] ?? 0;
 
-// Fungsi buat bintang rating
-function generateStars($rating)
-{
-    $fullStars = floor($rating);
-    $halfStar = ($rating - $fullStars) >= 0.5;
-    $starsHtml = '';
-
-    for ($i = 0; $i < $fullStars; $i++) {
-        $starsHtml .= '<i class="bi bi-star-fill text-warning"></i>';
-    }
-
-    if ($halfStar) {
-        $starsHtml .= '<i class="bi bi-star-half text-warning"></i>';
-    }
-
-    for ($i = $fullStars + $halfStar; $i < 5; $i++) {
-        $starsHtml .= '<i class="bi bi-star text-warning"></i>';
-    }
-
-    return $starsHtml;
-}
 ?>
-
 <style>
     .detail {
         background: rgba(255, 255, 255, 0.25);
@@ -116,7 +94,7 @@ function generateStars($rating)
             <h4 class="pt-3 pb-2 text-pinkv2"><?= htmlspecialchars($kostum['nama_kostum']) ?> - <?= htmlspecialchars($kostum['karakter']) ?></h4>
 
             <div class="mb-3">
-                <?= generateStars($rating_katalog) ?>
+                <div id="rating-kostum" class="rating d-inline-block" data-jenis="katalog" data-id="<?= $kostum_id ?>" data-rating="<?= $rating_katalog ?>"></div>
                 <small class="text-muted ms-2">(<?= $jumlah_rating_katalog ?> ulasan)</small>
             </div>
 
@@ -196,7 +174,7 @@ function generateStars($rating)
                     </a>
 
                     <div class="mb-3 mt-3">
-                        <?= generateStars($rating_pelanggan) ?>
+                        <div id="rating-penyewa" class="rating d-inline-block" data-jenis="penyewa" data-id="<?= $kostum['penyewa_id'] ?>" data-rating="<?= $rating_pelanggan ?>"></div>
                         <small class="text-muted ms-2">(<?= $jumlah_rating_pelanggan ?> ulasan)</small>
                     </div>
 
@@ -238,5 +216,64 @@ function generateStars($rating)
         </div>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.rating').forEach(container => {
+        const id = container.dataset.id;
+        const jenis = container.dataset.jenis;
+
+        // Get current rating from dataset if set
+        const currentRating = parseFloat(container.dataset.rating || 0);
+
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('i');
+            star.className = 'bi bi-star-fill';
+            star.dataset.value = i;
+
+            // Apply initial "selected" class for current rating
+            if (i <= Math.round(currentRating)) {
+                star.classList.add('selected');
+            }
+
+            // Hover effects
+            star.addEventListener('mouseover', () => {
+                [...container.children].forEach(s => s.classList.remove('hovered'));
+                for (let j = 0; j < i; j++) {
+                    container.children[j].classList.add('hovered');
+                }
+            });
+
+            star.addEventListener('mouseout', () => {
+                [...container.children].forEach(s => s.classList.remove('hovered'));
+            });
+
+            // Click handler to send new rating
+            star.addEventListener('click', () => {
+                if (!id || !jenis) {
+                    alert("Error: id atau jenis rating belum terdefinisi!");
+                    return;
+                }
+
+                fetch('./rating.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `id=${encodeURIComponent(id)}&jenis=${encodeURIComponent(jenis)}&nilai=${i}`
+                    })
+                    .then(res => res.text())
+                    .then(text => {
+                        [...container.children].forEach(s => s.classList.remove('selected'));
+                        for (let j = 0; j < i; j++) {
+                            container.children[j].classList.add('selected');
+                        }
+                    });
+            });
+
+            container.appendChild(star);
+        }
+    });
+</script>
+
 
 <?php include '../includes/footer.php'; ?>

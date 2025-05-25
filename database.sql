@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Waktu pembuatan: 25 Bulan Mei 2025 pada 06.09
+-- Waktu pembuatan: 25 Bulan Mei 2025 pada 12.24
 -- Versi server: 5.7.39
 -- Versi PHP: 8.2.0
 
@@ -53,7 +53,7 @@ CREATE TABLE `katalog` (
 --
 
 INSERT INTO `katalog` (`id`, `penyewa_id`, `nama_kostum`, `series`, `karakter`, `ukuran`, `gender`, `deskripsi`, `kategori`, `harga_sewa`, `kota`, `provinsi`, `status`, `visible`, `foto_kostum`, `rating`, `jumlah_rating`, `created_at`) VALUES
-(4, 3, 'JJK Icad', 'JUJUTSU KELAPA DUA', 'Icadshi', 'L', 'Pria', 'Icadshi Jualan Nasi, Beli Gak Si', 'Kostum', '25000.00', 'Banda Aceh', 'Aceh', 'tersedia', 1, '../uploads/katalog/kostum_683070f1cd5c1.jpg', '0.00', 0, '2025-05-23 12:58:25');
+(4, 3, 'JJK Icad', 'JUJUTSU KELAPA DUA', 'Icadshi', 'L', 'Pria', 'Icadshi Jualan Nasi, Beli Gak Si', 'Kostum', '25000.00', 'Banda Aceh', 'Aceh', 'disewa', 1, '../uploads/katalog/kostum_683070f1cd5c1.jpg', '4.00', 1, '2025-05-23 12:58:25');
 
 -- --------------------------------------------------------
 
@@ -93,7 +93,7 @@ CREATE TABLE `penyewa` (
 --
 
 INSERT INTO `penyewa` (`id`, `user_id`, `rating`, `jumlah_rating`) VALUES
-(3, 6, '0.00', 0),
+(3, 6, '5.00', 1),
 (4, 8, '0.00', 0);
 
 -- --------------------------------------------------------
@@ -122,7 +122,32 @@ CREATE TABLE `pesanan` (
 --
 
 INSERT INTO `pesanan` (`id`, `pelanggan_id`, `katalog_id`, `tanggal_sewa`, `tanggal_kembali`, `total_harga`, `status_pembayaran`, `status_peminjaman`, `bukti_pembayaran`, `catatan`, `created_at`, `updated_at`) VALUES
-(1, 3, 4, '2025-05-24', '2025-05-25', '50000.00', 'pending', 'belum_diambil', '../uploads/bukti/1748071850_istockphoto-1682296067-612x612.jpg', 'XXX', '2025-05-24 07:30:50', '2025-05-24 07:30:50');
+(1, 3, 4, '2025-05-24', '2025-05-25', '50000.00', 'dibayar', 'dipinjam', '../uploads/bukti/1748071850_istockphoto-1682296067-612x612.jpg', 'XXX', '2025-05-24 07:30:50', '2025-05-25 11:28:37');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `rating`
+--
+
+CREATE TABLE `rating` (
+  `id` int(11) NOT NULL,
+  `penilai_id` int(11) NOT NULL,
+  `katalog_id` int(11) DEFAULT NULL,
+  `penyewa_id` int(11) DEFAULT NULL,
+  `type` enum('katalog','penyewa') NOT NULL,
+  `nilai` int(11) NOT NULL,
+  `komentar` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data untuk tabel `rating`
+--
+
+INSERT INTO `rating` (`id`, `penilai_id`, `katalog_id`, `penyewa_id`, `type`, `nilai`, `komentar`, `created_at`) VALUES
+(1, 7, 4, NULL, 'katalog', 4, NULL, '2025-05-25 12:11:10'),
+(2, 7, NULL, 3, 'penyewa', 5, NULL, '2025-05-25 12:11:46');
 
 -- --------------------------------------------------------
 
@@ -155,9 +180,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `fullname`, `alamat`, `no_telepon`, `email`, `password`, `role`, `ktp_path`, `profil_path`, `provinsi`, `kota`, `bio`, `verifikasi_ktp`, `email_verified`, `email_verification_token`, `created_at`, `updated_at`) VALUES
-(6, 'Penyewa', 'Jl. Penyewa', '62312312312', 'penyewa@gmail.com', '$2y$12$kRGR0Ddks9SyMtrnINCUGu5wJS7XFmHwHv4YOeJkF/8FWALEBtM1W', 'penyewa', '../uploads/ktp/ktp_683070a1f2e931.54122423.jpg', '../uploads/profil/profil_683070a1f2f717.81301634.jpg', 'Aceh', 'Banda Aceh', 'Bio Penyewa', 0, 1, NULL, '2025-05-23 12:57:05', '2025-05-23 12:57:26'),
-(7, 'Pelanggan', 'Jln. Pelanggan', '63127846712', 'pelanggan@gmail.com', '$2y$12$V3KCQWljWzUsKct/bfoiKOeD0vFdY9ZCsmKZ0Fz6uAh.y/DqDUFwi', 'pelanggan', '../uploads/ktp/ktp_6830db720db941.39942442.jpg', '../uploads/profil/profil_6830db720dd361.74012499.jpg', 'Aceh', 'Banda Aceh', 'Bio Pelanggan', 0, 1, NULL, '2025-05-23 20:32:50', '2025-05-23 20:33:10'),
-(8, 'Admin', 'Jln. Admin', '41241241241', 'admin@gmail.com', '$2y$12$d9uKtQNy7mlT8BVHiE3FYORgB5N86ySuyaXawqy.pe1QAzdcMW5pO', 'penyewa', '../uploads/ktp/ktp_683184ec647168.42152409.jpg', '../uploads/profil/profil_683184ec649625.02631897.jpg', 'Aceh', 'Banda Aceh', 'Bio Admin', 0, 0, 'd43fa105fa93623fbce08895a1e51f32fdf2ff03d2e3384a9946c65c97dab795', '2025-05-24 08:35:56', '2025-05-24 08:35:56');
+(6, 'Penyewa', 'Jl. Penyewa', '62312312312', 'penyewa@gmail.com', '$2y$12$kRGR0Ddks9SyMtrnINCUGu5wJS7XFmHwHv4YOeJkF/8FWALEBtM1W', 'penyewa', '../uploads/ktp/ktp_683070a1f2e931.54122423.jpg', '../uploads/profil/profil_683070a1f2f717.81301634.jpg', 'Aceh', 'Banda Aceh', 'Bio Penyewa', 1, 1, NULL, '2025-05-23 12:57:05', '2025-05-25 06:41:31'),
+(7, 'Pelanggan', 'Jln. Pelanggan', '63127846712', 'pelanggan@gmail.com', '$2y$12$V3KCQWljWzUsKct/bfoiKOeD0vFdY9ZCsmKZ0Fz6uAh.y/DqDUFwi', 'pelanggan', '../uploads/ktp/ktp_6830db720db941.39942442.jpg', '../uploads/profil/profil_6830db720dd361.74012499.jpg', 'Aceh', 'Banda Aceh', 'Bio Pelanggan', 1, 1, NULL, '2025-05-23 20:32:50', '2025-05-25 06:41:56'),
+(8, 'Admin', 'Jln. Admin', '41241241241', 'admin@gmail.com', '$2y$12$d9uKtQNy7mlT8BVHiE3FYORgB5N86ySuyaXawqy.pe1QAzdcMW5pO', 'admin', '../uploads/ktp/ktp_683184ec647168.42152409.jpg', '../uploads/profil/profil_683184ec649625.02631897.jpg', 'Aceh', 'Banda Aceh', 'Bio Admin', 0, 1, NULL, '2025-05-24 08:35:56', '2025-05-25 06:23:44');
 
 -- --------------------------------------------------------
 
@@ -170,13 +195,6 @@ CREATE TABLE `wishlist` (
   `katalog_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data untuk tabel `wishlist`
---
-
-INSERT INTO `wishlist` (`id`, `katalog_id`, `user_id`) VALUES
-(10, 4, 7);
 
 --
 -- Indexes for dumped tables
@@ -210,6 +228,12 @@ ALTER TABLE `pesanan`
   ADD PRIMARY KEY (`id`),
   ADD KEY `pelanggan_id` (`pelanggan_id`),
   ADD KEY `katalog_id` (`katalog_id`);
+
+--
+-- Indeks untuk tabel `rating`
+--
+ALTER TABLE `rating`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeks untuk tabel `users`
@@ -255,6 +279,12 @@ ALTER TABLE `penyewa`
 --
 ALTER TABLE `pesanan`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT untuk tabel `rating`
+--
+ALTER TABLE `rating`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
