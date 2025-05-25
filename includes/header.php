@@ -31,12 +31,16 @@
                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] == "pelanggan") { ?>
                             <a href="/pelanggan/dashboard.php" class="btn btn-custom-primary font-silkscreen">Dashboard</a>
                         <?php } ?>
+
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == "admin") { ?>
+                            <a href="/admin/dashboard.php" class="btn btn-custom-primary font-silkscreen">Dashboard</a>
+                        <?php } ?>
                         <?php if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) : ?>
                             <div class="dropdown">
                                 <div class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <strong class="text-white me-2 mt-2" style="font-weight: 400;"><?= htmlspecialchars($_SESSION['fullname']) ?></strong>
+                                    <strong class="text-white me-2 mt-1" style="font-weight: 400;"><?= htmlspecialchars($_SESSION['fullname']) ?></strong>
                                     <?php if ($_SESSION['role'] == "admin") : ?>
-                                        <img src="<?php echo "https://ui-avatars.com/api/?name=" . urlencode($_SESSION['fullname']) . "&background=ff4ba1&color=fff"; ?>" alt="avatar" width="32" height="32" class="rounded-circle me-2 float-end">
+                                        <img src="<?php echo "https://ui-avatars.com/api/?name=" . urlencode($_SESSION['fullname']) . "&background=ff4ba1&color=fff"; ?>" alt="avatar" width="32" height="32" class="rounded-circle me-2 mt-1 float-end">
                                     <?php else : ?>
                                         <img src="<?php echo $_SESSION['profil_path']; ?>" alt="avatar" width="32" height="32" class="rounded-circle me-2 float-end">
                                     <?php endif; ?>
@@ -59,24 +63,3 @@
             </div>
         </nav>
     </header>
-
-
-    <!-- <header>
-        <div class="container-header">
-            <nav>
-                <ul>
-                    <?php if (isset($_SESSION['user_id'])) : ?>
-                        <?php if ($_SESSION['role'] === 'pelanggan') : ?>
-                            <li><a href="/dashboard/pelanggan.php">Profil</a></li>
-                        <?php elseif ($_SESSION['role'] === 'penyewa') : ?>
-                            <li><a href="/dashboard/penyewa.php">Dashboard Penyewa</a></li>
-                        <?php endif; ?>
-                        <li><a href="/auth/logout.php">Logout</a></li>
-                    <?php else : ?>
-                        <li><a href="/auth/login.php">Login</a></li>
-                        <li><a href="/auth/register.php">Register</a></li>
-                    <?php endif; ?>
-                </ul>
-            </nav>
-        </div>
-    </header> -->

@@ -517,3 +517,37 @@ textarea {
   color: #ffffff;
   font-size: 13px;
 }
+
+.total-card {
+  color: #fff;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  transition: transform 0.3s ease;
+  height: 140px;
+}
+.total-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Gradient Warna Acak */
+.bg-grad-1 {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+}
+.bg-grad-2 {
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+}
+.bg-grad-3 {
+  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+}
+.bg-grad-4 {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+.bg-grad-5 {
+  background: linear-gradient(135deg, #c2e9fb 0%, #a1c4fd 100%);
+}
+.bg-grad-6 {
+  background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+}

@@ -175,29 +175,30 @@ $maintenance = $conn->query("SELECT COUNT(*) as total FROM katalog WHERE penyewa
                                     </div>
                                     <div class="col-md-4">
                                         <strong>Status Pembayaran</strong><br>
-                                        <span class="badge bg-<?=
-                                                                $order['status_pembayaran'] === 'pending' ? 'pending' : '';
-                                                                $order['status_pembayaran'] === 'dibayar' ? 'dibayar' : '';
-                                                                $order['status_pembayaran'] === 'dibatalkan' ? 'dibatalkan' : '';
-                                                                $order['status_pembayaran'] === 'selesai' ? 'selesai' : ''; ?>">
-                                            <?= $order['status_pembayaran'] === 'pending' ? 'pending' : '';
-                                            $order['status_pembayaran'] === 'dibayar' ? 'dibayar' : '';
-                                            $order['status_pembayaran'] === 'dibatalkan' ? 'dibatalkan' : '';
-                                            $order['status_pembayaran'] === 'selesai' ? 'selesai' : ''; ?>
+                                        <span class="badge bg-<?php
+                                                                echo $order['status_pembayaran'] === 'pending' ? 'pending' : '';
+                                                                echo $order['status_pembayaran'] === 'dibayar' ? 'dibayar' : '';
+                                                                echo $order['status_pembayaran'] === 'dibatalkan' ? 'dibatalkan' : '';
+                                                                echo $order['status_pembayaran'] === 'selesai' ? 'selesai' : ''; ?>">
+                                            <?php
+                                            echo $order['status_pembayaran'] === 'pending' ? 'pending' : '';
+                                            echo $order['status_pembayaran'] === 'dibayar' ? 'dibayar' : '';
+                                            echo $order['status_pembayaran'] === 'dibatalkan' ? 'dibatalkan' : '';
+                                            echo $order['status_pembayaran'] === 'selesai' ? 'selesai' : ''; ?>
                                         </span>
                                     </div>
                                     <div class="col-md-4">
                                         <strong>Status Peminjaman</strong><br>
-                                        <span class="badge bg-<?=
-                                                                $order['status_peminjaman'] === 'belum_diambil' ? 'pending' : '';
-                                                                $order['status_peminjaman'] === 'dipinjam' ? 'dibayar' : '';
-                                                                $order['status_peminjaman'] === 'terlambat' ? 'dibatalkan' : '';
-                                                                $order['status_peminjaman'] === 'dikembalikan' ? 'selesai' : ''; ?>">
-                                            <?=
-                                            $order['status_peminjaman'] === 'belum_diambil' ? 'Waiting' : '';
-                                            $order['status_peminjaman'] === 'dipinjam' ? 'Di Pinjam' : '';
-                                            $order['status_peminjaman'] === 'terlambat' ? 'Terlambaat' : '';
-                                            $order['status_peminjaman'] === 'dikembalikan' ? 'Di Kembalikan' : ''; ?>
+                                        <span class="badge bg-<?php
+                                                                echo $order['status_peminjaman'] === 'belum_diambil' ? 'pending' : '';
+                                                                echo $order['status_peminjaman'] === 'dipinjam' ? 'dibayar' : '';
+                                                                echo $order['status_peminjaman'] === 'terlambat' ? 'dibatalkan' : '';
+                                                                echo $order['status_peminjaman'] === 'dikembalikan' ? 'selesai' : ''; ?>">
+                                            <?php
+                                            echo $order['status_peminjaman'] === 'belum_diambil' ? 'Waiting' : '';
+                                            echo $order['status_peminjaman'] === 'dipinjam' ? 'Di Pinjam' : '';
+                                            echo $order['status_peminjaman'] === 'terlambat' ? 'Terlambaat' : '';
+                                            echo $order['status_peminjaman'] === 'dikembalikan' ? 'Di Kembalikan' : ''; ?>
                                         </span>
                                     </div>
                                 </div>

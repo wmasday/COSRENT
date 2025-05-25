@@ -99,7 +99,7 @@ $result = $conn->query($sql);
                                 <i class="bi bi-wallet2 me-2"></i>
                                 <?= $harga_formatted ?><span> / Hari</span>
                             </div>
-                            <?php if (isset($_SESSION['role']) == 'pelanggan') : ?>
+                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'pelanggan') : ?>
                                 <?php
                                 $active = in_array($row['id'], $wishlist_ids) ? 'active' : '';
                                 ?>

@@ -81,6 +81,11 @@ function generateStars($rating)
 }
 
 if (isset($_POST['order'])) {
+    if ($kostum['status'] !== "tersedia") {
+        $_SESSION['error'] = "Status katalog tidak tersedia.";
+        header("Location: .");
+        exit();
+    }
     $tanggal_sewa = $_POST['tanggal_sewa'];
     $tanggal_kembali = $_POST['tanggal_kembali'];
     $catatan = $_POST['catatan'] ?? '';
