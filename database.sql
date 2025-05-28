@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Waktu pembuatan: 25 Bulan Mei 2025 pada 12.24
+-- Waktu pembuatan: 28 Bulan Mei 2025 pada 14.44
 -- Versi server: 5.7.39
 -- Versi PHP: 8.2.0
 
@@ -20,6 +20,30 @@ SET time_zone = "+00:00";
 --
 -- Database: `db_cosrent`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `chat`
+--
+
+CREATE TABLE `chat` (
+  `id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `pesan` text NOT NULL,
+  `waktu_kirim` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status_baca` enum('dibaca','belum_dibaca') DEFAULT 'belum_dibaca'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data untuk tabel `chat`
+--
+
+INSERT INTO `chat` (`id`, `sender_id`, `receiver_id`, `pesan`, `waktu_kirim`, `status_baca`) VALUES
+(6, 7, 6, 'halo', '2025-05-28 14:33:43', 'dibaca'),
+(7, 6, 7, 'hi', '2025-05-28 14:33:54', 'dibaca'),
+(8, 7, 6, 'how\'r u today?', '2025-05-28 14:34:04', 'dibaca');
 
 -- --------------------------------------------------------
 
@@ -201,6 +225,14 @@ CREATE TABLE `wishlist` (
 --
 
 --
+-- Indeks untuk tabel `chat`
+--
+ALTER TABLE `chat`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sender_id` (`sender_id`),
+  ADD KEY `receiver_id` (`receiver_id`);
+
+--
 -- Indeks untuk tabel `katalog`
 --
 ALTER TABLE `katalog`
@@ -257,6 +289,12 @@ ALTER TABLE `wishlist`
 --
 
 --
+-- AUTO_INCREMENT untuk tabel `chat`
+--
+ALTER TABLE `chat`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
 -- AUTO_INCREMENT untuk tabel `katalog`
 --
 ALTER TABLE `katalog`
@@ -301,6 +339,13 @@ ALTER TABLE `wishlist`
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
 --
+
+--
+-- Ketidakleluasaan untuk tabel `chat`
+--
+ALTER TABLE `chat`
+  ADD CONSTRAINT `chat_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `chat_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `users` (`id`);
 
 --
 -- Ketidakleluasaan untuk tabel `katalog`

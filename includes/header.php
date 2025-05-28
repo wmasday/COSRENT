@@ -6,9 +6,9 @@
     <title>Rental Kostum Anime</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.css">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/jquery-3.7.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.21.2/dist/sweetalert2.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
 </head>
 
 <body>
@@ -34,6 +34,10 @@
 
                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] == "admin") { ?>
                             <a href="/admin/dashboard.php" class="btn btn-custom-primary font-silkscreen">Dashboard</a>
+                        <?php } ?>
+
+                        <?php if (isset($_SESSION['role']) && isset($_SESSION['user_id'])) { ?>
+                            <a href="/chat/" class="btn btn-custom-primary font-silkscreen mx-3">Chat</a>
                         <?php } ?>
                         <?php if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) : ?>
                             <div class="dropdown">

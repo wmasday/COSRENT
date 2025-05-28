@@ -21,7 +21,8 @@ $query = $conn->query("
         u.provinsi AS provinsi_penyewa,
         u.kota AS kota_penyewa,
         u.profil_path,
-        u.verifikasi_ktp
+        u.verifikasi_ktp,
+        u.id AS penyewa_user_id
     FROM katalog k
     LEFT JOIN penyewa p ON k.penyewa_id = p.id
     LEFT JOIN users u ON p.user_id = u.id
@@ -46,6 +47,10 @@ $jumlah_rating_katalog = $kostum['jumlah_rating'] ?? 0;
 $rating_pelanggan = $kostum['rating_pelanggan'] ?? 0;
 $jumlah_rating_pelanggan = $kostum['jumlah_rating_pelanggan'] ?? 0;
 
+if (isset($_POST['chat'])) {
+    header("Location: ../chat/?to=" . $kostum['penyewa_user_id']);
+    exit();
+}
 ?>
 <style>
     .detail {
@@ -208,7 +213,14 @@ $jumlah_rating_pelanggan = $kostum['jumlah_rating_pelanggan'] ?? 0;
 
 <div class="container fixed-bottom">
     <div class="row mb-4">
-        <div class="col-sm-2 offset-sm-10">
+        <form class="col-sm-2 offset-sm-8" method="POST" action="">
+            <button type="submit" name="chat" class="btn bg-grad-2 text-white mt-5 w-100">
+                <i class="bi bi-chat-left-dots-fill me-3"></i>
+                <span>Chat</span>
+            </button>
+        </form>
+
+        <div class="col-sm-2">
             <a href="../pelanggan/order.php?katalog_id=<?= $kostum_id; ?>" class="btn btn-catalog mt-5 w-100">
                 <i class="bi bi-rocket-takeoff me-3"></i>
                 <span>Order</span>
