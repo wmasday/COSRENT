@@ -1,3 +1,17 @@
+<?php
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+
+    $queryChatUnread = "SELECT COUNT(*) as jumlah FROM chat WHERE receiver_id = ? AND status_baca = 'belum_dibaca'";
+    $stmt = $conn->prepare($queryChatUnread);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $fetchChatUnread = $result->fetch_assoc();
+    $stmt->close();
+    $countChatUnread = $fetchChatUnread['jumlah'];
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -37,7 +51,14 @@
                         <?php } ?>
 
                         <?php if (isset($_SESSION['role']) && isset($_SESSION['user_id'])) { ?>
-                            <a href="/chat/" class="btn btn-custom-primary font-silkscreen mx-3">Chat</a>
+                            <a href="/chat/" class="btn btn-custom-primary font-silkscreen mx-3">
+                                Chat
+                                <?php if ($countChatUnread > 0) : ?>
+                                    <div class="badge bg-danger">
+                                        <i class="bi bi-chat-dots-fill"></i> <?= $countChatUnread ?>
+                                    </div>
+                                <?php endif; ?>
+                            </a>
                         <?php } ?>
                         <?php if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) : ?>
                             <div class="dropdown">
