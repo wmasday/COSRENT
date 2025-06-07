@@ -14,7 +14,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'pelanggan' && $user_id) {
 }
 ?>
 
-<main class="container" style="margin-top: 200px;margin-bottom: 260px;">
+<main class="container" style="margin-top: 200px;height: 320px;">
     <div class="row">
         <div class="col-sm-6">
             <span class="open-sub-head d-block">Yaa~ konnichiwa~!</span>
@@ -27,6 +27,13 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'pelanggan' && $user_id) {
                 <span>Lihat Katalog</span>
             </a>
         </div>
+
+        <div class="col-sm-3 offset-sm-2">
+            <img src="./assets/img/hero.png" class="hero-landing" alt="HERO" />
+            <div class="verfied-landing bg-white rounded-3 shadow-sm py-3 text-center">
+                <i class="bi bi-check-circle me-3"></i> Trustsed Cosplay Rental
+            </div>
+        </div>
     </div>
 </main>
 
@@ -36,14 +43,14 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'pelanggan' && $user_id) {
         <div class="blob"></div>
         <div class="blob"></div>
     </div>
-    <div class="container pt-5 pb-5">
-        <div class="row mt-5 mb-3">
+    <div class="container pt-1 pb-5">
+        <div class="row mb-3">
             <div class="col-6 mb-4">
-                <h2 class="text-gradient-pink ">Katalog Terbaru</h2>
+                <h2 class="text-gradient-pink">Katalog Terbaru</h2>
             </div>
 
             <div class="col-6 mb-4 text-end">
-                <a href="./katalog/" class="text-decoration-none text-pink mt-3">
+                <a href="./katalog/" class="text-decoration-none text-pink mt-3" style="cursor:pointer;">
                     View All <i class="bi bi-chevron-compact-right"></i>
                 </a>
             </div>
@@ -59,7 +66,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'pelanggan' && $user_id) {
             ?>
                 <div class="col-sm-3 px-3 mb-3">
                     <div class="card w-100">
-                        <img src="<?= htmlspecialchars($foto) ?>" class="card-img-top" alt="Foto Kostum">
+                        <img src="<?= htmlspecialchars($foto) ?>" class="card-img-top" alt="Foto Kostum" style="max-height: 200px;">
                         <div class="card-body">
                             <a href="./katalog/index.php?keyword=<?= htmlspecialchars($row['karakter']); ?>" class="badge bg-character float-start py-2">
                                 <i class="bi bi-person-rolodex me-1"></i>

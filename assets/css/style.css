@@ -37,6 +37,20 @@ header {
   margin-left: 1% !important; */
 }
 
+.hero-landing {
+  width: 300px;
+  height: 350px;
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+.verfied-landing {
+  color: #2ed573;
+  position: relative;
+  z-index: 234;
+  margin-top: -10px;
+  font-size: 18px;
+}
 .navbar-brand {
   font-family: "Silkscreen", cursive !important;
   color: #ffffff;
@@ -187,7 +201,7 @@ main .detail {
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
-  z-index: -9999;
+  z-index: 123;
 }
 
 /* Blob container to center blobs */

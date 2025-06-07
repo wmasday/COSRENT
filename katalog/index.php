@@ -85,7 +85,7 @@ $result = $conn->query($sql);
                 ?>
                 <div class="col-sm-3 px-3 mb-3">
                     <div class="card w-100">
-                        <img src="<?= htmlspecialchars($foto) ?>" class="card-img-top" alt="Foto Kostum">
+                        <img src="<?= htmlspecialchars($foto) ?>" class="card-img-top" alt="Foto Kostum" style="max-height: 200px;">
                         <div class="card-body">
                             <a href="./index.php?keyword=<?= htmlspecialchars($row['karakter']); ?>" class="badge bg-character float-start py-2">
                                 <i class="bi bi-person-rolodex me-1"></i>
