@@ -24,7 +24,7 @@ if (!$penyewa_id) {
 function handleFileUpload($fieldName, $uploadDir, $prefix = 'file_', $oldFile = null)
 {
     if (!empty($_FILES[$fieldName]['name'])) {
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        $allowedExtensions = ['jpg', 'png'];
         $fileName = $_FILES[$fieldName]['name'];
         $tmpName = $_FILES[$fieldName]['tmp_name'];
         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
@@ -221,7 +221,7 @@ if (isset($_POST['submit'])) {
             </div>
 
             <div class="col-sm-12 mt-3">
-                <label>Foto Katalog</label>
+                <label>Foto Katalog <span class="text-danger" style="font-size: 10px;">* (jpg/png)</span></label>
                 <input type="file" name="foto_kostum" class="form-control form-control-sm mt-2">
                 <?php if ($katalog['foto_kostum']) : ?>
                     <img src="<?= htmlspecialchars($katalog['foto_kostum']) ?>" alt="Foto Kostum" style="width:200px; margin-top:10px; border-radius: 8px;">

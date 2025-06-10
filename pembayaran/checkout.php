@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <label>Lama Sewa (hari):</label>
     <input type="number" name="lama_sewa" min="1" required><br>
 
-    <label>Upload Bukti Transfer:</label>
+    <label>Upload Bukti Transfer: <span class="text-danger" style="font-size: 10px;">* (jpg/png)</span></label>
     <input type="file" name="bukti" required><br><br>
 
     <button type="submit">Kirim Pembayaran</button>

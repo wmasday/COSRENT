@@ -25,7 +25,7 @@ function uploadKostumFoto($field, $target = '../uploads/katalog/')
 {
     if (!empty($_FILES[$field]['name'])) {
         $ext = strtolower(pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+        $allowed = ['jpg', 'png'];
         if (!in_array($ext, $allowed)) return null;
 
         if (!is_dir($target)) mkdir($target, 0777, true);
@@ -90,7 +90,7 @@ if (isset($_POST['submit'])) {
     <form action="" method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="col-sm-3 mt-3">
-                <label>Foto Katalog</label>
+                <label>Foto Katalog <span class="text-danger" style="font-size: 10px;">* (jpg/png)</span></label>
                 <input type="file" name="foto_kostum" class="form-control form-control-sm mt-2">
             </div>
             <div class="col-sm-3 mt-3">

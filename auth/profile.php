@@ -16,7 +16,7 @@ $data = json_decode($json, true);
 function handleFileUpload($fieldName, $uploadDir, $prefix = 'file_', $oldFile = null)
 {
     if (!empty($_FILES[$fieldName]['name'])) {
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        $allowedExtensions = ['jpg', 'png'];
         $fileName = $_FILES[$fieldName]['name'];
         $tmpName = $_FILES[$fieldName]['tmp_name'];
         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
@@ -130,12 +130,12 @@ if (isset($_POST['update'])) {
             </div>
             <?php if ($user['verifikasi_ktp'] == 0) : ?>
                 <div class="col-sm-12 mt-3">
-                    <label>Upload KTP Baru (Opsional)</label>
+                    <label>Upload KTP Baru (Opsional) <span class="text-danger" style="font-size: 10px;">* jpg/png</span></label>
                     <input type="file" name="ktp" class="form-control">
                 </div>
             <?php endif; ?>
             <div class="col-sm-12 mt-3">
-                <label>Ganti Profile</label>
+                <label>Ganti Profile <span class="text-danger" style="font-size: 10px;">* (jpg/png)</span></label>
                 <input type="file" name="profile" class="form-control">
             </div>
         </div>

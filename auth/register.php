@@ -8,7 +8,7 @@ $data = json_decode($json, true);
 
 function handleFileUpload($file, $uploadDir, $prefix = '')
 {
-    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+    $allowedExtensions = ['jpg', 'png'];
     $fileName = $file['name'];
     $tmpName = $file['tmp_name'];
     $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
@@ -200,12 +200,12 @@ if (isset($_POST['register'])) {
             </div>
 
             <div class="mt-3">
-                <label>Upload KTP <span class="text-danger" style="font-size: 10px;">* Verifikasi Identitas</span></label>
+                <label>Upload KTP <span class="text-danger" style="font-size: 10px;">* Verifikasi Identitas (jpg/png)</span></label>
                 <input type="file" class="form-control" name="ktp" />
             </div>
 
             <div class="mt-3">
-                <label>Profile</label>
+                <label>Profile <span class="text-danger" style="font-size: 10px;">* (jpg/png)</span></label>
                 <input type="file" class="form-control" name="profile" />
             </div>
         </div>

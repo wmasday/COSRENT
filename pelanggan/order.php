@@ -201,7 +201,7 @@ if (isset($_POST['order'])) {
                     <input type="date" name="tanggal_kembali" class="form-control mt-2">
                 </div>
                 <div class="col-sm-4 mt-3">
-                    <label>Bukti Pembayaran</label>
+                    <label>Bukti Pembayaran <span class="text-danger" style="font-size: 10px;">* (jpg/png)</span></label>
                     <input type="file" name="bukti_pembayaran" class="form-control form-control-sm mt-3">
                 </div>
                 <div class="col-sm-12 mt-3">
