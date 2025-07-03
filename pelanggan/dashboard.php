@@ -38,6 +38,27 @@ $stmt->execute();
 $totalOrders = $stmt->get_result()->fetch_assoc()['total'];
 $stmt->close();
 
+// Order History
+$sqlOrderHistory = "SELECT 
+    p.id AS pesanan_id,
+    p.tanggal_sewa,
+    p.tanggal_kembali,
+    p.total_harga,
+    p.status_pembayaran,
+    p.status_peminjaman,
+    k.nama_kostum,
+    k.foto_kostum
+FROM pesanan p
+JOIN katalog k ON p.katalog_id = k.id
+WHERE p.pelanggan_id = ?
+AND p.status_pembayaran = 'dibayar'
+ORDER BY p.tanggal_sewa DESC";
+
+$historyStmt = $conn->prepare($sqlOrderHistory);
+$historyStmt->bind_param("i", $pelanggan_id);
+$historyStmt->execute();
+$riwayatPesanan = $historyStmt->get_result();
+
 // Ambil daftar pesanan lengkap dengan katalog
 $sqlOrders = "SELECT 
     p.id AS pesanan_id,
@@ -139,7 +160,7 @@ while ($w = $res2->fetch_assoc()) {
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-4 text-capitalize">
-                                <strong>Status Peminjaman</strong><br><?= htmlspecialchars($order['status_peminjaman']) ?>
+                                <strong>Status Peminjaman</strong><br><?= htmlspecialchars(str_replace('_', ' ', $order['status_peminjaman'])) ?>
                             </div>
                             <div class="col-md-8">
                                 <strong>Catatan</strong><br><small><?= nl2br(htmlspecialchars($order['catatan'])) ?></small>
@@ -203,6 +224,83 @@ while ($w = $res2->fetch_assoc()) {
             </div>
         <?php endwhile; ?>
     </div>
+
+    <h5 class="mt-5">Riwayat Pesanan</h5>
+    <?php if ($riwayatPesanan->num_rows > 0) : ?>
+        <div class="row">
+            <?php $no = 1;
+            $orders->data_seek(0);
+            while ($order = $orders->fetch_assoc()) :
+                $badgeClass = match ($order['status_pembayaran']) {
+                    'dibayar' => 'success',
+                    'selesai' => 'primary',
+                    'dibatalkan' => 'danger',
+                    default => 'secondary'
+                };
+            ?>
+                <div class="col-sm-4 mt-2">
+                    <div class="accordion glass-accordion" id="accordionPesanan">
+                        <div class="accordion-item mb-3 bg-gradient-tersedia border-0">
+                            <h2 class="accordion-header" id="heading<?= $no ?>">
+                                <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHistory<?= $no ?>" aria-expanded="false" aria-controls="collapse<?= $no ?>">
+                                    <div class="w-100 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong><?= htmlspecialchars($order['nama_kostum']) ?></strong>
+                                            <div class="text-muted small"><?= $order['tanggal_sewa'] ?> s.d. <?= $order['tanggal_kembali'] ?></div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapseHistory<?= $no ?>" class="accordion-collapse collapse" aria-labelledby="heading<?= $no ?>" data-bs-parent="#accordionPesanan">
+                                <div class="accordion-body text-dark">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <strong>Total Harga</strong><br>
+                                            IDR <?= number_format($order['total_harga'], 0, ',', '.') ?>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <strong>Status</strong><br>
+                                            <span class="text-capitalize"><?= str_replace('_', ' ', htmlspecialchars($order['status_peminjaman'])) ?></span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <strong>Catatan</strong><br>
+                                            <small><?= nl2br(htmlspecialchars($order['catatan'])) ?></small>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-6">
+                                            <strong>Bukti Pembayaran</strong><br>
+                                            <?php if ($order['bukti_pembayaran']) : ?>
+                                                <a href="../uploads/<?= htmlspecialchars($order['bukti_pembayaran']) ?>" target="_blank">
+                                                    <img src="../uploads/<?= htmlspecialchars($order['bukti_pembayaran']) ?>" class="img-thumbnail mt-2" style="max-height: 120px;">
+                                                </a>
+                                            <?php else : ?>
+                                                <span class="text-muted">Belum diupload</span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <strong>Preview</strong><br>
+                                            <?php if ($order['foto_kostum']) : ?>
+                                                <img src="../uploads/<?= htmlspecialchars($order['foto_kostum']) ?>" class="img-thumbnail mt-2" style="max-height: 120px;">
+                                            <?php else : ?>
+                                                <span class="text-muted">Belum diupload</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php $no++;
+            endwhile; ?>
+        </div>
+
+    <?php else : ?>
+        <p class="text-muted">Belum ada riwayat pesanan.</p>
+    <?php endif; ?>
+
 </div>
 
 <?php include '../includes/footer.php'; ?>

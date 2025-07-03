@@ -37,6 +37,7 @@ if (isset($_POST['register'])) {
     $password    = $_POST['password'];
     $c_password  = $_POST['c_password'];
     $role        = $_POST['role'];
+    $nik         = $_POST['nik'];
     $provinsi    = $_POST['provinsi'];
     $kota        = $_POST['kota'];
     $bio         = $_POST['bio'];
@@ -55,6 +56,12 @@ if (isset($_POST['register'])) {
         exit();
     }
 
+    if (!preg_match('/^\d{16}$/', $nik)) {
+        $_SESSION['error'] = 'NIK harus terdiri dari 16 digit angka.';
+        header("Location: ./register.php");
+        exit();
+    }
+
     if ($role === 'penyewa' && !isset($_POST['term'])) {
         $_SESSION['error'] = 'Anda harus menyetujui syarat dan ketentuan sebagai penyewa.';
         header("Location: ./register.php");
@@ -64,6 +71,32 @@ if (isset($_POST['register'])) {
     $password = password_hash($password, PASSWORD_DEFAULT);
     $token = bin2hex(random_bytes(32));
 
+    $queryCheckUser = "SELECT * FROM users WHERE no_telepon = ? OR email = ? OR nik = ? LIMIT 1";
+    $checkUserStatement = $conn->prepare($queryCheckUser);
+    $checkUserStatement->bind_param("sss", $no_telepon, $email, $nik);
+    $checkUserStatement->execute();
+    $checkUserResult = $checkUserStatement->get_result();
+
+    if ($checkUserResult->num_rows > 0) {
+        $existingUser = $checkUserResult->fetch_assoc();
+
+        if ($existingUser['no_telepon'] === $no_telepon) {
+            $_SESSION['error'] = "Nomor telepon sudah terdaftar.";
+            header("Location: ./register.php");
+            exit();
+        } elseif ($existingUser['email'] === $email) {
+            $_SESSION['error'] = "Email sudah terdaftar.";
+            header("Location: ./register.php");
+            exit();
+        } elseif ($existingUser['nik'] === $nik) {
+            $_SESSION['error'] = "NIK sudah terdaftar.";
+            header("Location: ./register.php");
+            exit();
+        }
+        exit;
+    }
+
+
     // Upload KTP
     list($ktpSuccess, $ktpResult) = handleFileUpload($_FILES['ktp'], "../uploads/ktp/", 'ktp_');
     if (!$ktpSuccess) {
@@ -72,6 +105,15 @@ if (isset($_POST['register'])) {
         exit();
     }
     $ktp_path = $ktpResult;
+
+    // Upload Selfie
+    list($selfieSuccess, $selfieResult) = handleFileUpload($_FILES['selfie'], "../uploads/selfie/", 'selfie_');
+    if (!$selfieSuccess) {
+        $_SESSION['error'] = $selfieResult;
+        header("Location: ./register.php");
+        exit();
+    }
+    $selfie_path = $selfieResult;
 
     // Upload Profile (optional)
     $profil_path = null;
@@ -86,24 +128,31 @@ if (isset($_POST['register'])) {
     }
 
     // Insert ke users
-    $sql = "INSERT INTO users (fullname, alamat, no_telepon, email, password, role, ktp_path, profil_path, provinsi, kota, bio, verifikasi_ktp, email_verified, email_verification_token)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)";
+    $sql = "INSERT INTO users (
+        fullname, alamat, no_telepon, email, password, nik, role,
+        ktp_path, selfie_path, profil_path, provinsi, kota, bio,
+        verifikasi_ktp, verifikasi_selfie_ktp, email_verified, email_verification_token
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, ?)";
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "ssssssssssss",
+        "ssssssssssssss",
         $fullname,
         $alamat,
         $no_telepon,
         $email,
         $password,
+        $nik,
         $role,
         $ktp_path,
+        $selfie_path,
         $profil_path,
         $provinsi,
         $kota,
         $bio,
         $token
     );
+
 
     if ($stmt->execute()) {
         $user_id = $conn->insert_id;
@@ -146,6 +195,10 @@ if (isset($_POST['register'])) {
             <div class="mt-3">
                 <label>Nama Lengkap</label>
                 <input type="text" class="form-control" name="fullname" />
+            </div>
+            <div class="mt-3">
+                <label>NIK</label>
+                <input type="number" class="form-control" name="nik" />
             </div>
             <div class="mt-3">
                 <label>Email</label>
@@ -203,6 +256,10 @@ if (isset($_POST['register'])) {
                 <label>Upload KTP <span class="text-danger" style="font-size: 10px;">* Verifikasi Identitas (jpg/png)</span></label>
                 <input type="file" class="form-control" name="ktp" />
             </div>
+            <div class="mt-3">
+                <label>Upload Selfie KTP <span class="text-danger" style="font-size: 10px;">* Verifikasi Identitas (jpg/png)</span></label>
+                <input type="file" class="form-control" name="selfie" />
+            </div>
 
             <div class="mt-3">
                 <label>Profile <span class="text-danger" style="font-size: 10px;">* (jpg/png)</span></label>
@@ -214,7 +271,7 @@ if (isset($_POST['register'])) {
             <div class="mt-3">
                 <label>Bio Profile</label>
                 <div class="form-floating">
-                    <textarea class="form-control bg-light" placeholder="Bio" id="floatingTextarea" style="height: 330px;" name="bio"></textarea>
+                    <textarea class="form-control bg-light" placeholder="Bio" id="floatingTextarea" style="height: 420px;" name="bio"></textarea>
                 </div>
             </div>
         </div>

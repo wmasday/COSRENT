@@ -10,9 +10,10 @@ $totalPelanggan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS tot
 $totalPelangganVerif = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM users WHERE role = 'pelanggan' AND verifikasi_ktp = 1"))['total'];
 $totalKatalog = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM katalog"))['total'];
 $totalKTPPending = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM users WHERE verifikasi_ktp = 0 AND role IN ('penyewa', 'pelanggan')"))['total'];
+$totalSelfiePending = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM users WHERE verifikasi_selfie_ktp = 0 AND role IN ('penyewa', 'pelanggan')"))['total'];
 $totalBayarPending = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM pesanan WHERE status_pembayaran = 'pending'"))['total'];
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE verifikasi_ktp = 0 AND role IN ('penyewa', 'pelanggan')");
+$stmt = $conn->prepare("SELECT * FROM users WHERE verifikasi_ktp = 0 OR verifikasi_selfie_ktp = 0 AND role IN ('penyewa', 'pelanggan')");
 $stmt->execute();
 $result = $stmt->get_result();
 $unverifiedUsers = $result->fetch_all(MYSQLI_ASSOC);
@@ -31,14 +32,26 @@ if ($result) {
 }
 
 
-if (isset($_GET['verify_user'])) {
-    $verifyUserId = intval($_GET['verify_user']);
+if (isset($_GET['verify_user_ktp'])) {
+    $verifyUserId = intval($_GET['verify_user_ktp']);
     $stmt = $conn->prepare("UPDATE users SET verifikasi_ktp = 1 WHERE id = ?");
     $stmt->bind_param("i", $verifyUserId);
     $stmt->execute();
     $stmt->close();
 
     $_SESSION['success'] = "Verifikasi KTP User Berhasil!";
+    header("Location: ./dashboard.php");
+    exit();
+}
+
+if (isset($_GET['verify_user_selfie'])) {
+    $verifyUserId = intval($_GET['verify_user_selfie']);
+    $stmt = $conn->prepare("UPDATE users SET verifikasi_selfie_ktp = 1 WHERE id = ?");
+    $stmt->bind_param("i", $verifyUserId);
+    $stmt->execute();
+    $stmt->close();
+
+    $_SESSION['success'] = "Verifikasi Selfie User Berhasil!";
     header("Location: ./dashboard.php");
     exit();
 }
@@ -118,6 +131,13 @@ if (isset($_GET['verify_payment'])) {
         </div>
 
         <div class="col-md-3">
+            <div class="total-card bg-grad-1 p-3">
+                <span class="d-block">Menunggu Verifikasi Selfie</span>
+                <div class="count display-6 fw-bold"><?= $totalSelfiePending ?></div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
             <div class="total-card bg-grad-6 p-3">
                 <span class="d-block">Pembayaran Pending</span>
                 <div class="count display-6 fw-bold"><?= $totalBayarPending ?></div>
@@ -141,7 +161,7 @@ if (isset($_GET['verify_payment'])) {
                     <tr>
                         <th>Nama Lengkap</th>
                         <th>Email</th>
-                        <th>KTP</th>
+                        <th>KYC</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -156,14 +176,32 @@ if (isset($_GET['verify_payment'])) {
                                         Lihat KTP
                                     </button>
                                 <?php else : ?>
-                                    <span class="text-muted">Belum Upload</span>
+                                    <span class="text-muted">KTP KOSONG</span>
+                                <?php endif; ?>
+
+                                <?php if ($user['selfie_path']) : ?>
+                                    <button class="btn btn-sm bg-grad-5 view-selfie-btn" data-bs-toggle="modal" data-bs-target="#selfieModal" data-img="<?= htmlspecialchars($user['selfie_path']) ?>">
+                                        Lihat Selfie
+                                    </button>
+                                <?php else : ?>
+                                    <span class="text-muted">SELFIE KOSONG</span>
                                 <?php endif; ?>
                             </td>
+
                             <td>
-                                <a href="dashboard.php?verify_user=<?= $user['id'] ?>" class="btn bg-grad-6 btn-sm text-dark">
-                                    <i class="bi bi-check-circle"></i> Verifikasi
-                                </a>
+                                <?php if ($user['verifikasi_ktp'] == 0) : ?>
+                                    <a href="dashboard.php?verify_user_ktp=<?= $user['id'] ?>" class="btn bg-grad-6 btn-sm text-dark">
+                                        <i class="bi bi-check-circle"></i> KTP
+                                    </a>
+                                <?php endif; ?>
+
+                                <?php if ($user['verifikasi_selfie_ktp'] == 0) : ?>
+                                    <a href="dashboard.php?verify_user_selfie=<?= $user['id'] ?>" class="btn bg-grad-6 btn-sm text-dark">
+                                        <i class="bi bi-check-circle"></i> SELFIE
+                                    </a>
+                                <?php endif; ?>
                             </td>
+
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -227,17 +265,29 @@ if (isset($_GET['verify_payment'])) {
             </div>
         </div>
     </div>
-</div>
-
-<div class="modal fade" id="buktiModal" tabindex="-1" aria-labelledby="buktiModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content glassmorph shadow">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="buktiModalLabel">Lihat Bukti Pembayaran</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+    <div class="modal fade" id="selfieModal" tabindex="-1" aria-labelledby="selfieModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glassmorph shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="selfieModalLabel">Lihat Selfie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="selfieImage" src="" alt="SELFIE" class="img-fluid rounded" style="max-height: 500px;" />
+                </div>
             </div>
-            <div class="modal-body text-center">
-                <img id="buktiImage" src="" alt="Bukti Pembayaran" class="img-fluid rounded" style="max-height: 500px;" />
+        </div>
+    </div>
+    <div class="modal fade" id="buktiModal" tabindex="-1" aria-labelledby="buktiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glassmorph shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="buktiModalLabel">Lihat Bukti Pembayaran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="buktiImage" src="" alt="Bukti Pembayaran" class="img-fluid rounded" style="max-height: 500px;" />
+                </div>
             </div>
         </div>
     </div>
@@ -248,6 +298,13 @@ if (isset($_GET['verify_payment'])) {
         button.addEventListener('click', function() {
             const imgSrc = this.getAttribute('data-img');
             document.getElementById('ktpImage').setAttribute('src', imgSrc);
+        });
+    });
+
+    document.querySelectorAll('.view-selfie-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const imgSrc = this.getAttribute('data-img');
+            document.getElementById('selfieImage').setAttribute('src', imgSrc);
         });
     });
 

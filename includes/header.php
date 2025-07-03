@@ -65,7 +65,7 @@ if (isset($_SESSION['user_id'])) {
                                 <div class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <strong class="text-white me-2 mt-1" style="font-weight: 400;"><?= htmlspecialchars($_SESSION['fullname']) ?></strong>
                                     <?php if ($_SESSION['role'] == "admin") : ?>
-                                        <img src="<?php echo "https://ui-avatars.com/api/?name=" . urlencode($_SESSION['fullname']) . "&background=ff4ba1&color=fff"; ?>" alt="avatar" width="32" height="32" class="rounded-circle me-2 mt-1 float-end">
+                                        <img src="<?php echo $_SESSION['profil_path']; ?>" alt="avatar" width="32" height="32" class="rounded-circle me-2 float-end">
                                     <?php else : ?>
                                         <img src="<?php echo $_SESSION['profil_path']; ?>" alt="avatar" width="32" height="32" class="rounded-circle me-2 float-end">
                                     <?php endif; ?>

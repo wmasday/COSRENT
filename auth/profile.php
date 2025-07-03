@@ -51,7 +51,15 @@ if (isset($_POST['update'])) {
     $alamat = $_POST['alamat'] ?? $user['alamat'];
 
     $ktpPath = $user['ktp_path'];
+    $selfiePath = $user['selfie_path'];
     $profilPath = $user['profil_path'];
+
+    if ($user['verifikasi_selfie_ktp'] == 0) {
+        $uploadedSelfie = handleFileUpload('selfie', '../uploads/selfie/', 'selfie_', $selfiePath);
+        if ($uploadedSelfie) {
+            $selfiePath = $uploadedSelfie;
+        }
+    }
 
     if ($user['verifikasi_ktp'] == 0) {
         $uploadedKTP = handleFileUpload('ktp', '../uploads/ktp/', 'ktp_', $ktpPath);
@@ -65,8 +73,8 @@ if (isset($_POST['update'])) {
         $profilPath = $uploadedProfil;
     }
 
-    $stmt = $conn->prepare("UPDATE users SET fullname=?, email=?, bio=?, provinsi=?, kota=?, ktp_path=?, profil_path=?, alamat=?, no_telepon=? WHERE id=?");
-    $stmt->bind_param("sssssssssi", $fullname, $email, $bio, $provinsi, $kota, $ktpPath, $profilPath, $alamat, $no_telepon, $user_id);
+    $stmt = $conn->prepare("UPDATE users SET fullname=?, email=?, bio=?, provinsi=?, kota=?, ktp_path=?, selfie_path=?, profil_path=?, alamat=?, no_telepon=? WHERE id=?");
+    $stmt->bind_param("ssssssssssi", $fullname, $email, $bio, $provinsi, $kota, $ktpPath, $selfiePath, $profilPath, $alamat, $no_telepon, $user_id);
 
     if ($stmt->execute()) {
         $_SESSION['success'] = "Profil berhasil diperbarui.";
@@ -91,6 +99,12 @@ if (isset($_POST['update'])) {
                 <label>Nama Lengkap</label>
                 <input type="text" name="fullname" class="form-control" value="<?= htmlspecialchars($user['fullname']) ?>">
             </div>
+
+            <div class="col-sm-6 mt-3">
+                <label>NIK</label>
+                <input type="text" name="nik" class="form-control" value="<?= htmlspecialchars($user['nik']) ?>" readonly>
+            </div>
+
             <div class="col-sm-6 mt-3">
                 <label>Email</label>
                 <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>">
@@ -120,18 +134,29 @@ if (isset($_POST['update'])) {
                     <option>Pilih Kota</option>
                 </select>
             </div>
-            <div class="col-sm-10 mt-3">
+            <div class="col-sm-8 mt-3">
                 <label>Bio</label>
                 <textarea name="bio" class="form-control" rows="6"><?= htmlspecialchars($user['bio']) ?></textarea>
             </div>
             <div class="col-sm-2 mt-3">
-                <label>KTP Saat Ini</label><br>
+                <label class="mb-2">Selfie KTP Saat Ini</label><br>
+                <img src="<?= $user['selfie_path'] ?>" alt="selfie" width="130">
+            </div>
+            <div class="col-sm-2 mt-3">
+                <label class="mb-2">KTP Saat Ini</label><br>
                 <img src="<?= $user['ktp_path'] ?>" alt="KTP" width="130">
             </div>
             <?php if ($user['verifikasi_ktp'] == 0) : ?>
                 <div class="col-sm-12 mt-3">
                     <label>Upload KTP Baru (Opsional) <span class="text-danger" style="font-size: 10px;">* jpg/png</span></label>
                     <input type="file" name="ktp" class="form-control">
+                </div>
+            <?php endif; ?>
+
+            <?php if ($user['verifikasi_selfie_ktp'] == 0) : ?>
+                <div class="col-sm-12 mt-3">
+                    <label>Upload Selfie KTP Baru (Opsional) <span class="text-danger" style="font-size: 10px;">* jpg/png</span></label>
+                    <input type="file" name="selfie" class="form-control">
                 </div>
             <?php endif; ?>
             <div class="col-sm-12 mt-3">

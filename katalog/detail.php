@@ -22,6 +22,7 @@ $query = $conn->query("
         u.kota AS kota_penyewa,
         u.profil_path,
         u.verifikasi_ktp,
+        u.verifikasi_selfie_ktp,
         u.id AS penyewa_user_id
     FROM katalog k
     LEFT JOIN penyewa p ON k.penyewa_id = p.id
@@ -194,12 +195,16 @@ if (isset($_POST['chat'])) {
                                 <td><?= htmlspecialchars($kostum['kota_penyewa']) ?></td>
                             </tr>
                             <tr>
-                                <th>Verified</th>
+                                <th>Verified KYC</th>
                                 <td>
                                     <?php
                                     echo $kostum['verifikasi_ktp'] ?
-                                        '<span class="badge bg-primary">DONE</span>' :
-                                        '<span class="badge bg-danger">WAITING</span>';
+                                        '<span class="badge bg-primary me-2">KTP</span>' :
+                                        '<span class="badge bg-danger me-2">KTP</span>';
+
+                                    echo $kostum['verifikasi_selfie_ktp'] ?
+                                        '<span class="badge bg-primary">SELFIE</span>' :
+                                        '<span class="badge bg-danger">SELFIE</span>';
                                     ?>
                                 </td>
                             </tr>

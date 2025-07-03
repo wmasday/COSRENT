@@ -4,6 +4,44 @@ include '../includes/header.php';
 include '../auth/auth.php';
 
 $user_id = $_SESSION['user_id'];
+
+// History Pesanan
+$sqlGetPenyewaId = "SELECT id FROM penyewa WHERE user_id = ?";
+$stmt = $conn->prepare($sqlGetPenyewaId);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$penyewa = $result->fetch_assoc();
+$penyewaId = $penyewa['id'];
+
+// Ambil riwayat pesanan untuk kostum milik penyewa ini
+$sqlOrderHistory = "SELECT 
+    p.id AS pesanan_id,
+    p.tanggal_sewa,
+    p.tanggal_kembali,
+    p.total_harga,
+    p.status_pembayaran,
+    p.status_peminjaman,
+    p.bukti_pembayaran,
+    p.catatan,
+    k.nama_kostum,
+    k.foto_kostum,
+    u.fullname AS nama_pelanggan,
+    u.no_telepon,
+    u.email
+FROM pesanan p
+JOIN katalog k ON p.katalog_id = k.id
+JOIN pelanggan pl ON p.pelanggan_id = pl.id
+JOIN users u ON pl.user_id = u.id
+WHERE k.penyewa_id = ?
+ORDER BY p.tanggal_sewa DESC";
+
+$stmt = $conn->prepare($sqlOrderHistory);
+$stmt->bind_param("i", $penyewaId);
+$stmt->execute();
+$riwayatPesanan = $stmt->get_result();
+
+// Last Push
 $sql = "SELECT id FROM penyewa WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -34,6 +72,7 @@ SELECT
     u.email,
     u.no_telepon,
     u.verifikasi_ktp,
+    u.verifikasi_selfie_ktp,
     u.kota AS kota_penyewa,
     u.provinsi AS provinsi_penyewa
 FROM pesanan o
@@ -80,6 +119,7 @@ if (isset($_POST['update-status'])) {
         exit;
     }
 }
+
 ?>
 
 <div class="container" style="margin-top:100px;">
@@ -153,12 +193,19 @@ if (isset($_POST['update-status'])) {
                                         <strong>Telp</strong> <br><?= htmlspecialchars($order['no_telepon']) ?>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <strong>Verified</strong> <br><?php
-                                                                        echo $order['verifikasi_ktp'] ?
-                                                                            '<span class="badge bg-primaryv2">DONE</span>' :
-                                                                            '<span class="badge bg-dangerv2">WAITING</span>';
-                                                                        ?>
+                                        <strong>Verified KYC</strong> <br>
+                                        <?php
+                                        echo $order['verifikasi_ktp'] ?
+                                            '<span class="badge bg-primaryv2 me-2">KTP</span>' :
+                                            '<span class="badge bg-dangerv2 me-2">KTP</span>';
+                                        ?>
+                                        <?php
+                                        echo $order['verifikasi_selfie_ktp'] ?
+                                            '<span class="badge bg-primaryv2">SELFIE</span>' :
+                                            '<span class="badge bg-dangerv2">SELFOE</span>';
+                                        ?>
                                     </div>
+
                                     <div class="col-md-4 mb-3">
                                         <strong>Kota / Provinsi</strong> <br>
                                         <?= htmlspecialchars($order['kota_penyewa']) ?> / <?= htmlspecialchars($order['provinsi_penyewa']) ?>
@@ -236,7 +283,7 @@ if (isset($_POST['update-status'])) {
 
 
     <div class="row mt-5 mb-3">
-        <div class="col-sm-22 mb-4">
+        <div class="col-sm-12 mb-4">
             <h4 class="text-pinkv2 ">Kostum yang Disewakan</h4>
         </div>
 
@@ -299,6 +346,90 @@ if (isset($_POST['update-status'])) {
             </div>
         <?php endwhile; ?>
     </div>
+
+    <h4 class="text-pinkv2 mt-3 mb-3">Riwayat Pesanan Pelanggan</h4>
+    <?php if ($riwayatPesanan->num_rows > 0) : ?>
+        <div class="row">
+            <?php $no = 1;
+            while ($order = $riwayatPesanan->fetch_assoc()) :
+                $badgeClass = match ($order['status_pembayaran']) {
+                    'dibayar' => 'success',
+                    'selesai' => 'primary',
+                    'dibatalkan' => 'danger',
+                    default => 'secondary'
+                };
+            ?>
+                <div class="col-sm-4 mt-2">
+                    <div class="accordion glass-accordion" id="accordionPesanan">
+                        <div class="accordion-item mb-3 bg-gradient-tersedia border-0">
+                            <h2 class="accordion-header" id="heading<?= $no ?>">
+                                <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHistory<?= $no ?>" aria-expanded="false" aria-controls="collapse<?= $no ?>">
+                                    <div class="w-100 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong><?= htmlspecialchars($order['nama_kostum']) ?></strong>
+                                            <div class="text-muted small"><?= $order['tanggal_sewa'] ?> s.d. <?= $order['tanggal_kembali'] ?></div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapseHistory<?= $no ?>" class="accordion-collapse collapse" aria-labelledby="heading<?= $no ?>" data-bs-parent="#accordionPesanan">
+                                <div class="accordion-body text-dark">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <strong>Nama Pelanggan</strong><br>
+                                            <?= htmlspecialchars($order['nama_pelanggan']) ?><br>
+                                            <small><?= htmlspecialchars($order['email']) ?><br><?= htmlspecialchars($order['no_telepon']) ?></small>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <strong>Total Harga</strong><br>
+                                            IDR <?= number_format($order['total_harga'], 0, ',', '.') ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col-sm-6">
+                                            <strong>Status Peminjaman</strong><br>
+                                            <span class="text-capitalize"><?= str_replace('_', ' ', htmlspecialchars($order['status_peminjaman'])) ?></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <strong>Catatan</strong><br>
+                                            <small><?= nl2br(htmlspecialchars($order['catatan'])) ?></small>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col-sm-6">
+                                            <strong>Bukti Pembayaran</strong><br>
+                                            <?php if ($order['bukti_pembayaran']) : ?>
+                                                <a href="../uploads/<?= htmlspecialchars($order['bukti_pembayaran']) ?>" target="_blank">
+                                                    <img src="../uploads/<?= htmlspecialchars($order['bukti_pembayaran']) ?>" class="img-thumbnail mt-2" style="max-height: 120px;">
+                                                </a>
+                                            <?php else : ?>
+                                                <span class="text-muted">Belum diupload</span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <strong>Preview Kostum</strong><br>
+                                            <?php if ($order['foto_kostum']) : ?>
+                                                <img src="../uploads/<?= htmlspecialchars($order['foto_kostum']) ?>" class="img-thumbnail mt-2" style="max-height: 120px;">
+                                            <?php else : ?>
+                                                <span class="text-muted">Belum diupload</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php $no++;
+            endwhile; ?>
+        </div>
+    <?php else : ?>
+        <p class="text-muted">Belum ada riwayat pesanan pelanggan.</p>
+    <?php endif; ?>
+
 </div>
 
 

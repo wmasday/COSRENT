@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Waktu pembuatan: 28 Bulan Mei 2025 pada 14.44
+-- Waktu pembuatan: 03 Jul 2025 pada 11.22
 -- Versi server: 5.7.39
 -- Versi PHP: 8.2.0
 
@@ -41,9 +41,9 @@ CREATE TABLE `chat` (
 --
 
 INSERT INTO `chat` (`id`, `sender_id`, `receiver_id`, `pesan`, `waktu_kirim`, `status_baca`) VALUES
-(6, 7, 6, 'halo', '2025-05-28 14:33:43', 'dibaca'),
-(7, 6, 7, 'hi', '2025-05-28 14:33:54', 'dibaca'),
-(8, 7, 6, 'how\'r u today?', '2025-05-28 14:34:04', 'dibaca');
+(9, 11, 10, 'bang', '2025-07-03 10:17:15', 'dibaca'),
+(10, 11, 10, 'bang', '2025-07-03 10:17:22', 'dibaca'),
+(11, 10, 11, 'oit', '2025-07-03 10:39:32', 'dibaca');
 
 -- --------------------------------------------------------
 
@@ -77,7 +77,7 @@ CREATE TABLE `katalog` (
 --
 
 INSERT INTO `katalog` (`id`, `penyewa_id`, `nama_kostum`, `series`, `karakter`, `ukuran`, `gender`, `deskripsi`, `kategori`, `harga_sewa`, `kota`, `provinsi`, `status`, `visible`, `foto_kostum`, `rating`, `jumlah_rating`, `created_at`) VALUES
-(4, 3, 'JJK Icad', 'JUJUTSU KELAPA DUA', 'Icadshi', 'L', 'Pria', 'Icadshi Jualan Nasi, Beli Gak Si', 'Kostum', '25000.00', 'Banda Aceh', 'Aceh', 'disewa', 1, '../uploads/katalog/kostum_683070f1cd5c1.jpg', '4.00', 1, '2025-05-23 12:58:25');
+(5, 5, 'RAW', 'QR', 'QR', 'L', 'Pria', 'XXX', 'Kostum', '125000.00', 'Banda Aceh', 'Aceh', 'disewa', 1, '../uploads/katalog/kostum_686657ffc48c7.png', '0.00', 0, '2025-07-03 10:14:23');
 
 -- --------------------------------------------------------
 
@@ -97,7 +97,8 @@ CREATE TABLE `pelanggan` (
 --
 
 INSERT INTO `pelanggan` (`id`, `user_id`, `rating`, `jumlah_rating`) VALUES
-(3, 7, '0.00', 0);
+(5, 11, '0.00', 0),
+(6, 12, '0.00', 0);
 
 -- --------------------------------------------------------
 
@@ -117,8 +118,8 @@ CREATE TABLE `penyewa` (
 --
 
 INSERT INTO `penyewa` (`id`, `user_id`, `rating`, `jumlah_rating`) VALUES
-(3, 6, '5.00', 1),
-(4, 8, '0.00', 0);
+(5, 10, '0.00', 0),
+(6, 13, '0.00', 0);
 
 -- --------------------------------------------------------
 
@@ -146,7 +147,7 @@ CREATE TABLE `pesanan` (
 --
 
 INSERT INTO `pesanan` (`id`, `pelanggan_id`, `katalog_id`, `tanggal_sewa`, `tanggal_kembali`, `total_harga`, `status_pembayaran`, `status_peminjaman`, `bukti_pembayaran`, `catatan`, `created_at`, `updated_at`) VALUES
-(1, 3, 4, '2025-05-24', '2025-05-25', '50000.00', 'dibayar', 'dipinjam', '../uploads/bukti/1748071850_istockphoto-1682296067-612x612.jpg', 'XXX', '2025-05-24 07:30:50', '2025-05-25 11:28:37');
+(2, 5, 5, '2025-07-03', '2025-07-05', '375000.00', 'dibayar', 'dipinjam', '../uploads/bukti/1751537938_1512-qris.png', 'RAW', '2025-07-03 10:18:58', '2025-07-03 10:39:18');
 
 -- --------------------------------------------------------
 
@@ -165,14 +166,6 @@ CREATE TABLE `rating` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data untuk tabel `rating`
---
-
-INSERT INTO `rating` (`id`, `penilai_id`, `katalog_id`, `penyewa_id`, `type`, `nilai`, `komentar`, `created_at`) VALUES
-(1, 7, 4, NULL, 'katalog', 4, NULL, '2025-05-25 12:11:10'),
-(2, 7, NULL, 3, 'penyewa', 5, NULL, '2025-05-25 12:11:46');
-
 -- --------------------------------------------------------
 
 --
@@ -186,13 +179,16 @@ CREATE TABLE `users` (
   `no_telepon` varchar(15) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `nik` varchar(16) NOT NULL,
   `role` enum('admin','penyewa','pelanggan') NOT NULL,
   `ktp_path` varchar(255) DEFAULT NULL,
+  `selfie_path` varchar(255) DEFAULT NULL,
   `profil_path` varchar(255) DEFAULT NULL,
   `provinsi` varchar(100) DEFAULT NULL,
   `kota` varchar(100) DEFAULT NULL,
   `bio` text,
   `verifikasi_ktp` tinyint(1) DEFAULT '0',
+  `verifikasi_selfie_ktp` tinyint(1) DEFAULT '0',
   `email_verified` tinyint(1) DEFAULT '0',
   `email_verification_token` varchar(64) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -203,10 +199,12 @@ CREATE TABLE `users` (
 -- Dumping data untuk tabel `users`
 --
 
-INSERT INTO `users` (`id`, `fullname`, `alamat`, `no_telepon`, `email`, `password`, `role`, `ktp_path`, `profil_path`, `provinsi`, `kota`, `bio`, `verifikasi_ktp`, `email_verified`, `email_verification_token`, `created_at`, `updated_at`) VALUES
-(6, 'Penyewa', 'Jl. Penyewa', '62312312312', 'penyewa@gmail.com', '$2y$12$kRGR0Ddks9SyMtrnINCUGu5wJS7XFmHwHv4YOeJkF/8FWALEBtM1W', 'penyewa', '../uploads/ktp/ktp_683070a1f2e931.54122423.jpg', '../uploads/profil/profil_683070a1f2f717.81301634.jpg', 'Aceh', 'Banda Aceh', 'Bio Penyewa', 1, 1, NULL, '2025-05-23 12:57:05', '2025-05-25 06:41:31'),
-(7, 'Pelanggan', 'Jln. Pelanggan', '63127846712', 'pelanggan@gmail.com', '$2y$12$V3KCQWljWzUsKct/bfoiKOeD0vFdY9ZCsmKZ0Fz6uAh.y/DqDUFwi', 'pelanggan', '../uploads/ktp/ktp_6830db720db941.39942442.jpg', '../uploads/profil/profil_6830db720dd361.74012499.jpg', 'Aceh', 'Banda Aceh', 'Bio Pelanggan', 1, 1, NULL, '2025-05-23 20:32:50', '2025-05-25 06:41:56'),
-(8, 'Admin', 'Jln. Admin', '41241241241', 'admin@gmail.com', '$2y$12$d9uKtQNy7mlT8BVHiE3FYORgB5N86ySuyaXawqy.pe1QAzdcMW5pO', 'admin', '../uploads/ktp/ktp_683184ec647168.42152409.jpg', '../uploads/profil/profil_683184ec649625.02631897.jpg', 'Aceh', 'Banda Aceh', 'Bio Admin', 0, 1, NULL, '2025-05-24 08:35:56', '2025-05-25 06:23:44');
+INSERT INTO `users` (`id`, `fullname`, `alamat`, `no_telepon`, `email`, `password`, `nik`, `role`, `ktp_path`, `selfie_path`, `profil_path`, `provinsi`, `kota`, `bio`, `verifikasi_ktp`, `verifikasi_selfie_ktp`, `email_verified`, `email_verification_token`, `created_at`, `updated_at`) VALUES
+(9, 'Trust Sec', 'Jln. Dewa 19', '089653148498', 'admin@gmail.com', '$2y$12$3rSEG3zWEcyYdr2Boumt7e33SZR6Blf6LJ2ctF4/mWratqK.la.xu', '1234567890123456', 'admin', '../uploads/ktp/ktp_68665202be06a5.18744910.jpg', '../uploads/selfie/selfie_68665202be1306.53186024.jpg', '../uploads/profil/profil_68665202be1950.33283484.jpg', 'Banten', 'Tangerang', 'Bio Admin', 1, 1, 1, NULL, '2025-07-03 09:48:50', '2025-07-03 09:50:14'),
+(10, 'Penyewa', 'Jln. Dewa 19', '089653148412', 'penyewa@gmail.com', '$2y$12$4ZAXkzkGDa3cvbhlP/./gOr2UEep9/3AVOa5Z6.47I2U81s71lZ.y', '1234567890123451', 'penyewa', '../uploads/ktp/ktp_6866547694447.png', '../uploads/selfie/selfie_68665623f140e.png', '../uploads/profil/profil_686652be6b42f1.59016759.jpg', 'Banten', 'Serang', 'Bio Penyewa', 1, 1, 1, NULL, '2025-07-03 09:51:58', '2025-07-03 10:38:47'),
+(11, 'Pelanggan', 'Jln. Mandor Muhi', '081293534819', 'pelanggan@gmail.com', '$2y$12$GSUqvOkrTnHnC1C8ZUBI7e0y6r9ozk3fSvx2A.2hQDGu4hYW02C6q', '1234567890123452', 'pelanggan', '../uploads/ktp/ktp_6866584657d876.92446734.png', '../uploads/selfie/selfie_68665846581303.90037865.png', '../uploads/profil/profil_68665846581766.55044924.png', 'Banten', 'Serang', 'Bio Pelanggan', 1, 1, 1, NULL, '2025-07-03 10:15:34', '2025-07-03 10:38:51'),
+(12, 'Pelanggan 2', 'Jln. Dewa 19', '0896531484912', 'pelanggan2@gmail.com', '$2y$12$DhKD880KNWRy0DKMUq72/Obpt.MEude.jQyTdCiIuDHsy.2DnBfLW', '1234567890123450', 'pelanggan', '../uploads/ktp/ktp_686664f4867906.16488622.png', '../uploads/selfie/selfie_686664f4868ea1.09216821.png', '../uploads/profil/profil_686664f48692a1.74250507.png', 'Aceh', 'Banda Aceh', 'Bio Pelanggan 2', 0, 0, 1, NULL, '2025-07-03 11:09:40', '2025-07-03 11:10:01'),
+(13, 'Penyewa 2', 'Jln. Dewa 19', '0896531484231', 'penyewa2@gmail.com', '$2y$12$D4pKLKY4YFLthNWF9vCejeGU1j6mU4rPADgz7c2GyOfeJbUDk/R7S', '1234567890123454', 'penyewa', '../uploads/ktp/ktp_686667e0cc5b16.62336593.png', '../uploads/selfie/selfie_686667e0cc70a7.63897113.png', '../uploads/profil/profil_686667e0cc7514.82740298.png', 'Aceh', 'Banda Aceh', 'Bio Penyewa 2', 0, 0, 1, NULL, '2025-07-03 11:22:08', '2025-07-03 11:22:27');
 
 -- --------------------------------------------------------
 
@@ -272,9 +270,9 @@ ALTER TABLE `rating`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `fullname` (`fullname`),
   ADD UNIQUE KEY `no_telepon` (`no_telepon`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `nik` (`nik`);
 
 --
 -- Indeks untuk tabel `wishlist`
@@ -292,31 +290,31 @@ ALTER TABLE `wishlist`
 -- AUTO_INCREMENT untuk tabel `chat`
 --
 ALTER TABLE `chat`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT untuk tabel `katalog`
 --
 ALTER TABLE `katalog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT untuk tabel `pelanggan`
 --
 ALTER TABLE `pelanggan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT untuk tabel `penyewa`
 --
 ALTER TABLE `penyewa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT untuk tabel `pesanan`
 --
 ALTER TABLE `pesanan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT untuk tabel `rating`
@@ -328,13 +326,13 @@ ALTER TABLE `rating`
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT untuk tabel `wishlist`
 --
 ALTER TABLE `wishlist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
