@@ -159,18 +159,20 @@ if (isset($_GET['verify_payment'])) {
             <table class="table align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Nama Lengkap</th>
-                        <th>Email</th>
-                        <th>KYC</th>
-                        <th>Aksi</th>
+                        <th class="text-center">Nama Lengkap</th>
+                        <th class="text-center">NIK</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">KYC</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($unverifiedUsers as $index => $user) : ?>
                         <tr>
                             <td><?= htmlspecialchars($user['fullname']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($user['nik']) ?></td>
                             <td><?= htmlspecialchars($user['email']) ?></td>
-                            <td>
+                            <td class="text-center">
                                 <?php if ($user['ktp_path']) : ?>
                                     <button class="btn btn-sm bg-grad-5 view-ktp-btn" data-bs-toggle="modal" data-bs-target="#ktpModal" data-img="<?= htmlspecialchars($user['ktp_path']) ?>">
                                         Lihat KTP
@@ -188,7 +190,7 @@ if (isset($_GET['verify_payment'])) {
                                 <?php endif; ?>
                             </td>
 
-                            <td>
+                            <td class="text-center">
                                 <?php if ($user['verifikasi_ktp'] == 0) : ?>
                                     <a href="dashboard.php?verify_user_ktp=<?= $user['id'] ?>" class="btn bg-grad-6 btn-sm text-dark">
                                         <i class="bi bi-check-circle"></i> KTP
